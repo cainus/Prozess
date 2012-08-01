@@ -40,7 +40,7 @@ describe("Message", function(){
     this.message.isValid().should.equal(true);
     this.message.checksum = 0;
     this.message.isValid().should.equal(false);
-    this.message = new Message("prozess", 0, 1337);
+    this.message = new Message("alejandro", 0, 1337);
     this.message.isValid().should.equal(false);
   });
 
@@ -48,24 +48,19 @@ describe("Message", function(){
       //var bytes = [12].pack("N") 
       //              + [0].pack("C") 
       //              + [558161692].pack("N") + "proz";
-      var bytes = new Buffer(13);
-      console.log("buffer: ", bytes, " L:", bytes.length);
-      bytes.writeUInt32BE(12, 0);
-      console.log("buffer: ", bytes, " L:", bytes.length);
-      bytes.writeUInt8(0, 4);
-      console.log("buffer: ", bytes, " L:", bytes.length);
-      bytes.writeUInt32BE(1120192889, 5);
-      console.log("buffer: ", bytes, " L:", bytes.length);
+
+      var bytes = new Buffer(12);
+      bytes.writeUInt32BE(12, 0);          // size
+      bytes.writeUInt8(0, 4);              // magic
+      bytes.writeUInt32BE(1120192889, 5);  //checksum
       bytes.write("ale", 9);
-      console.log("buffer: ", bytes, " L:", bytes.length);
       var message = Message.parseFrom(bytes);
       message.isValid().should.equal(true);
       message.magic.should.equal(0);
       message.checksum.should.equal(1120192889);
-      console.log(message.payload.toString('utf8'));
-      console.log(message.payload);
       message.payload.toString().should.equal("ale", 'utf8');
     });
+
 
 
 });
