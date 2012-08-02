@@ -107,8 +107,8 @@ describe("Consumer", function(){
                                   this.consumer.MAX_SIZE).should.eql(bytes);
     });
 
-  });
 
+  });
 
 
 });
