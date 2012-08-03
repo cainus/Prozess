@@ -1,5 +1,6 @@
 require('should');
 var net = require('net');
+var _ = require('underscore');
 var Consumer = require('../lib/consumer').Consumer;
 
 
@@ -12,6 +13,9 @@ describe("Consumer", function(){
     this.consumer = new Consumer({ offset : 0 });
 
     this.server = net.createServer(function(client){
+      client.on('data', function(data){
+        console.log("dater: ", data);
+      });
 
     });
 
@@ -92,19 +96,31 @@ describe("Consumer", function(){
       bytes.writeUInt32BE(0, 16);
       bytes.writeUInt32BE(this.consumer.MAX_SIZE, 20);
 
-      /*
-      var bytes = [this.consumer.RequestType.FETCH].pack("n") + 
-                  ["test".length].pack("n") + 
-                  "test" + 
-                  [0].pack("N") + 
-                  [0].pack("q").reverse + 
-                  [this.consumer.MAX_SIZE].pack("N");
-                  */
       this.consumer.encodeRequest(this.consumer.RequestType.FETCH,
                                   "test",
                                   0,
                                   0,
                                   this.consumer.MAX_SIZE).should.eql(bytes);
+    });
+
+    it("should send a consumer request", function(done){
+     this.server = net.createServer(function(listener){
+       listener.on('data', function(data){
+         var expected = "00 00 00 18 00 01 00 04 74 65 73 74 00 00 00 00 00 00 00 00 00 00 00 00 00 10 00 00";
+         expected = expected.split(" ");
+         expected = _.map(expected, function(datum){
+           return parseInt(datum, 16);
+         });
+         data.should.eql(new Buffer(expected));
+         done();
+       });
+
+     });
+
+     this.server.listen(9092, function(){
+     });
+     this.consumer.connect();
+     this.consumer.sendConsumeRequest();
     });
 
 
@@ -118,24 +134,11 @@ describe("Consumer", function(){
  RUBY
   describe "Kafka Consumer" do
   
-    it "should encode a request to consume" do
-      bytes = [Kafka::RequestType::FETCH].pack("n") + ["test".length].pack("n") + "test" + [0].pack("N") + [0].pack("q").reverse + [Kafka::Consumer::MAX_SIZE].pack("N")
-      @consumer.encode_request(Kafka::RequestType::FETCH, "test", 0, 0, Kafka::Consumer::MAX_SIZE).should eql(bytes)
-    end
-
     it "should read the response data" do
       bytes = [0].pack("n") + [1120192889].pack("N") + "ale"
       @mocked_socket.should_receive(:read).and_return([9].pack("N"))
       @mocked_socket.should_receive(:read).with(9).and_return(bytes)
       @consumer.read_data_response.should eql(bytes[2,7])
-    end
-
-    it "should send a consumer request" do
-      @consumer.stub!(:encoded_request_size).and_return(666)
-      @consumer.stub!(:encode_request).and_return("someencodedrequest")
-      @consumer.should_receive(:write).with("someencodedrequest").exactly(:once).and_return(true)
-      @consumer.should_receive(:write).with(666).exactly(:once).and_return(true)
-      @consumer.send_consume_request.should eql(true)
     end
 
     it "should parse a message set from bytes" do
