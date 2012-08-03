@@ -54,24 +54,37 @@ describe("Message", function(){
     this.message.isValid().should.equal(false);
   });
 
-    it("should parse a message from bytes", function(){
-      //var bytes = [12].pack("N") 
-      //              + [0].pack("C") 
-      //              + [558161692].pack("N") + "proz";
+  it("should parse a message when magic is 0 (kafka <= 0.6)", function(){
+    var bytes = new Buffer(12);
+    bytes.writeUInt32BE(12, 0);          // size
+    bytes.writeUInt8(0, 4);              // magic
+    bytes.writeUInt32BE(1120192889, 5);  // checksum
+    bytes.write("ale", 9);
+    var message = Message.parseFrom(bytes);
+    message.magic.should.equal(0);
+    message.checksum.should.equal(1120192889);
+    message.isValid().should.equal(true);
+    message.payload.toString().should.equal("ale", 'utf8');
+  });
+  
+  it("should parse a message when magic is 1  (kafka >= 0.7)", function(){
+    var bytes = new Buffer(13);
+    bytes.writeUInt32BE(12, 0);          // size
+    bytes.writeUInt8(1, 4);              // magic
+    bytes.writeUInt8(1, 5);              // compression
+    bytes.writeUInt32BE(1120192889, 6);  // checksum
+    bytes.write("ale", 10);
+    var message = Message.parseFrom(bytes);
+    message.magic.should.equal(1);
+    message.checksum.should.equal(1120192889);
+    message.isValid().should.equal(true);
+    message.payload.toString().should.equal("ale", 'utf8');
+  });
 
-      var bytes = new Buffer(13);
-      bytes.writeUInt32BE(13, 0);          // size
-      bytes.writeUInt8(0, 4);              // magic
-      bytes.writeUInt8(0, 5);              // compression
-      bytes.writeUInt32BE(1120192889, 6);  // checksum
-      bytes.write("ale", 10);
-      var message = Message.parseFrom(bytes);
-      message.magic.should.equal(0);
-      message.checksum.should.equal(1120192889);
-      message.isValid().should.equal(true);
-      message.payload.toString().should.equal("ale", 'utf8');
-    });
+
+  
 
 
+  // TODO add a test-case with compression!
 
 });
