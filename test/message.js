@@ -23,8 +23,18 @@ describe("Message", function(){
   });
 
   it("should allow to set a custom magic number", function(){
-      this.message = new Message("ale", 1);
+      this.message = new Message("ale", 0, 1, 0);
       this.message.magic.should.equal(1);
+  });
+
+  it("should have a default compression type of 0", function(){
+      this.message = new Message("ale", 0);
+      this.message.compression.should.equal(0);
+  });
+
+  it("should allow to set a compression type", function(){
+      this.message = new Message("ale", 0, 1, 2);
+      this.message.compression.should.equal(2);
   });
 
   it("should calculate the checksum (crc32 of a given message)", function(){
@@ -40,7 +50,7 @@ describe("Message", function(){
     this.message.isValid().should.equal(true);
     this.message.checksum = 0;
     this.message.isValid().should.equal(false);
-    this.message = new Message("alejandro", 0, 1337);
+    this.message = new Message("alejandro", 1337, 0, 0);
     this.message.isValid().should.equal(false);
   });
 
@@ -49,15 +59,16 @@ describe("Message", function(){
       //              + [0].pack("C") 
       //              + [558161692].pack("N") + "proz";
 
-      var bytes = new Buffer(12);
-      bytes.writeUInt32BE(12, 0);          // size
+      var bytes = new Buffer(13);
+      bytes.writeUInt32BE(13, 0);          // size
       bytes.writeUInt8(0, 4);              // magic
-      bytes.writeUInt32BE(1120192889, 5);  //checksum
-      bytes.write("ale", 9);
+      bytes.writeUInt8(0, 5);              // compression
+      bytes.writeUInt32BE(1120192889, 6);  // checksum
+      bytes.write("ale", 10);
       var message = Message.parseFrom(bytes);
-      message.isValid().should.equal(true);
       message.magic.should.equal(0);
       message.checksum.should.equal(1120192889);
+      message.isValid().should.equal(true);
       message.payload.toString().should.equal("ale", 'utf8');
     });
 
