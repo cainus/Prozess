@@ -81,8 +81,22 @@ describe("Message", function(){
     message.payload.toString().should.equal("ale", 'utf8');
   });
 
+   it("should raise an error if the magic number is not recognised", function(){
+     /* bytes = [12, 2, 0, 755095536, 'martin'].pack('NCCNa*')
+        Kafka::Message.parse_from(bytes)
+     */
+     var bytes = new Buffer(13);
+     bytes.writeUInt32BE(12, 0);          // size
+     bytes.writeUInt8(2, 4);              // magic
+     bytes.writeUInt8(1, 5);              // compression
+     bytes.writeUInt32BE(755095536, 6);   // checksum
+     bytes.write("ale", 10);
+     (function(){
+       Message.parseFrom(bytes);
+     }).should.throwError(/Unsupported Kafka message version/); 
+   });
 
-  
+
 
 
   // TODO add a test-case with compression!
