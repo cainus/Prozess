@@ -82,9 +82,6 @@ describe("Message", function(){
   });
 
    it("should raise an error if the magic number is not recognised", function(){
-     /* bytes = [12, 2, 0, 755095536, 'martin'].pack('NCCNa*')
-        Kafka::Message.parse_from(bytes)
-     */
      var bytes = new Buffer(13);
      bytes.writeUInt32BE(12, 0);          // size
      bytes.writeUInt8(2, 4);              // magic
@@ -94,6 +91,22 @@ describe("Message", function(){
      (function(){
        Message.parseFrom(bytes);
      }).should.throwError(/Unsupported Kafka message version/); 
+   });
+
+   it("should skip an incomplete message at the end of the response", function(){
+      //bytes = [8, 0, 1120192889, 'ale'].pack('NCNa*')
+      //bytes += [8].pack('N') # incomplete message (only length, rest is truncated)
+     var bytes = new Buffer(13);
+     bytes.writeUInt32BE(12, 0);          // size
+     bytes.writeUInt8(2, 4);              // magic
+     bytes.writeUInt8(1, 5);              // compression
+     bytes.writeUInt32BE(755095536, 6);   // checksum
+     bytes.write("ale", 10);
+     //write an added length here to get ignored
+
+     //messageSet = Message.parse_from(bytes)
+     //message_set.messages.size.should == 1
+     //message_set.size.should == 12 # bytes consumed
    });
 
 
