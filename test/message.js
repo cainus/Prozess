@@ -1,4 +1,5 @@
 require('should');
+require('underscore');
 var binary = require('binary');
 
 var Message = require('../lib/message').Message;
@@ -60,7 +61,7 @@ describe("Message", function(){
     bytes.writeUInt8(0, 4);              // magic
     bytes.writeUInt32BE(1120192889, 5);  // checksum
     bytes.write("ale", 9);
-    var message = Message.parseFrom(bytes);
+    var message = Message.parseFrom(bytes).messages[0];
     message.magic.should.equal(0);
     message.checksum.should.equal(1120192889);
     message.isValid().should.equal(true);
@@ -74,7 +75,7 @@ describe("Message", function(){
     bytes.writeUInt8(1, 5);              // compression
     bytes.writeUInt32BE(1120192889, 6);  // checksum
     bytes.write("ale", 10);
-    var message = Message.parseFrom(bytes);
+    var message = Message.parseFrom(bytes).messages[0];
     message.magic.should.equal(1);
     message.checksum.should.equal(1120192889);
     message.isValid().should.equal(true);
@@ -94,19 +95,19 @@ describe("Message", function(){
    });
 
    it("should skip an incomplete message at the end of the response", function(){
-      //bytes = [8, 0, 1120192889, 'ale'].pack('NCNa*')
-      //bytes += [8].pack('N') # incomplete message (only length, rest is truncated)
-     var bytes = new Buffer(13);
+     var bytes = new Buffer(17);
      bytes.writeUInt32BE(12, 0);          // size
-     bytes.writeUInt8(2, 4);              // magic
+     bytes.writeUInt8(1, 4);              // magic
      bytes.writeUInt8(1, 5);              // compression
      bytes.writeUInt32BE(755095536, 6);   // checksum
      bytes.write("ale", 10);
-     //write an added length here to get ignored
+     bytes.writeUInt32BE(8, 13); // incomplete message (only length, rest is truncated)
 
-     //messageSet = Message.parse_from(bytes)
-     //message_set.messages.size.should == 1
-     //message_set.size.should == 12 # bytes consumed
+     var messageSet = Message.parseFrom(bytes);
+     messageSet.messages.length.should.equal(1);
+     console.log("look here +++++++++++++++++++++++++++++++++++");
+     console.log(messageSet.messages[0].payload.toString());
+     messageSet.size.should.equal(12); // bytes consumed
    });
 
 
