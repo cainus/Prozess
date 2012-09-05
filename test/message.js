@@ -72,7 +72,7 @@ describe("Message", function(){
     var bytes = new Buffer(13);
     bytes.writeUInt32BE(12, 0);          // size
     bytes.writeUInt8(1, 4);              // magic
-    bytes.writeUInt8(1, 5);              // compression
+    bytes.writeUInt8(0, 5);              // compression
     bytes.writeUInt32BE(1120192889, 6);  // checksum
     bytes.write("ale", 10);
     var message = Message.parseFrom(bytes).messages[0];
@@ -98,21 +98,45 @@ describe("Message", function(){
      var bytes = new Buffer(17);
      bytes.writeUInt32BE(12, 0);          // size
      bytes.writeUInt8(1, 4);              // magic
-     bytes.writeUInt8(1, 5);              // compression
+     bytes.writeUInt8(0, 5);              // compression
      bytes.writeUInt32BE(755095536, 6);   // checksum
      bytes.write("ale", 10);
      bytes.writeUInt32BE(8, 13); // incomplete message (only length, rest is truncated)
 
      var messageSet = Message.parseFrom(bytes);
      messageSet.messages.length.should.equal(1);
-     console.log("look here +++++++++++++++++++++++++++++++++++");
      console.log(messageSet.messages[0].payload.toString());
      messageSet.size.should.equal(12); // bytes consumed
    });
 
+   it("should skip an incomplete message at the end of the response which has the same length as an empty message", function(){
+     var bytes = new Buffer(23);
+     bytes.writeUInt32BE(12, 0);          // size
+     bytes.writeUInt8(1, 4);              // magic
+     bytes.writeUInt8(0, 5);              // compression
+     bytes.writeUInt32BE(755095536, 6);   // checksum
+     bytes.write("ale", 10);
+     bytes.writeUInt32BE(8, 13); // incomplete message (only length, rest is truncated)
+     bytes.writeUInt8(1,17);
+     bytes.writeUInt8(0, 18);
+     bytes.writeUInt32BE(755095536,19);
+     var messageSet = Message.parseFrom(bytes);
+     messageSet.messages.length.should.equal(1);
+     messageSet.size.should.equal(12); // bytes consumed
+   });
+  
+   it("should read empty messages correctly", function(){ 
+     var bytes = new Buffer(10);
+     bytes.writeUInt32BE(5, 0);          // size
+     bytes.writeUInt8(1, 4);              // magic
+     bytes.writeUInt8(0, 5);              // compression
+     bytes.writeUInt32BE(755095536, 6);   // checksum
+     bytes.write("", 10); // empty message
+     var messageSet = Message.parseFrom(bytes);
+     messageSet.messages.length.should.equal(1);
+     messageSet.messages[0].payload.toString().should.equal("");
+   });
 
 
-
-  // TODO add a test-case with compression!
 
 });
