@@ -72,10 +72,10 @@ describe("Message", function(){
   
   it("should parse a message when magic is 1  (kafka >= 0.7)", function(){
     var bytes = new BufferMaker()
-              .UInt32BE(9)
-              .UInt8(1)
-              .UInt8(0)
-              .UInt32BE(1120192889)
+              .UInt32BE(9) //size
+              .UInt8(1) // magic
+              .UInt8(0) // compression
+              .UInt32BE(1120192889) // checksum
               .string("ale")
               .make();
     var message = Message.parseFrom(bytes).messages[0];
@@ -108,7 +108,6 @@ describe("Message", function(){
 
      var messageSet = Message.parseFrom(bytes);
      messageSet.messages.length.should.equal(1);
-     console.log(messageSet.messages[0].payload.toString());
      messageSet.size.should.equal(12); // bytes consumed
    });
 
@@ -124,7 +123,6 @@ describe("Message", function(){
 
      var messageSet = Message.parseFrom(bytes);
      messageSet.messages.length.should.equal(1);
-     console.log(messageSet.messages[0].payload.toString());
      messageSet.size.should.equal(13); // bytes consumed
    });
 
@@ -168,22 +166,25 @@ describe("Message", function(){
    });
 
    it("should recursively parse nested uncompressed messages", function() {
-   //  var bytes = new Buffer(29);
-   //  bytes.writeUInt32BE(8, 0);          // size
-   //  bytes.writeUInt8(1, 4);              // magic
-   //  bytes.writeUInt8(0, 5);              // compression
-   //  bytes.writeUInt32BE(755095536, 6);   // checksum
-   //  bytes.write("ale", 10);
-   //  bytes.writeUInt32BE(8, 13); // incomplete message (only length, rest is truncated)
-   //  bytes.writeUInt8(1,17);
-   //  bytes.writeUInt8(0, 18);
-   //  bytes.writeUInt32BE(755095536,19);
-   //  bytes.write("foobar",24);
-   //  var messageSet = Message.parseFrom(bytes);
-   //  messageSet.messages.length.should.equal(2);
-   //  messageSet.messages[0].payload.toString().should.equal("ale");
-   //  messageSet.messages[1].payload.toString().should.equal("foobar");
-   //  messageSet.size.should.equal(29); // bytes consumed
+
+     var bytes = new BufferMaker()
+     .UInt32BE(9)
+     .UInt8(1)
+     .UInt8(0)
+     .UInt32BE(1120192889)
+     .string("ale")
+     .UInt32BE(12)
+     .UInt8(1)
+     .UInt8(0)
+     .UInt32BE(2666930069)
+     .string("foobar")
+     .make();
+     var messageSet = Message.parseFrom(bytes);
+     messageSet.messages.length.should.equal(2);
+     messageSet.messages[0].isValid().should.equal(true);
+     messageSet.messages[0].payload.toString().should.equal("ale", "utf8");
+     messageSet.messages[1].isValid().should.equal(true);
+     messageSet.messages[1].payload.toString().should.equal("foobar", "utf8");
    });
 
 
