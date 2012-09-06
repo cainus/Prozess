@@ -14,7 +14,7 @@ describe("Message", function(){
   });
 
   it("should have a checksum and a payload", function(){
-    this.message.payload.should.eql(new Buffer([]));
+    this.message.payload.should.eql('');
     this.message.checksum.should.equal(0);
   });
 
