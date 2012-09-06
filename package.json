@@ -1,7 +1,7 @@
 {
       "name": "Prozess",
       "description" : "Prozess is a kafka library for Node.js",
-      "keywords" : ["api", "rest", "http", "resource", "hypermedia"], 
+      "keywords" : ["kafka", "producer", "consumer"],
       "version": "0.0.1",
       "bugs": {
        "url": "https://github.com/cainus/Prozess/issues"
@@ -22,10 +22,9 @@
       ],
       "dependencies": {
           "underscore" : "1.3.3",
-          "iconv" : "1.2.3",
+          "buffermaker" : "0.0.2",
           "binary" : "0.3.0",
-          "crc32" : "0.2.2",
-          "bignum" : "0.4.1"
+          "crc32" : "0.2.2"
       },
       "devDependencies" : {
           "mockery" : "1.1.2",

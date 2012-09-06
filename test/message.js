@@ -1,7 +1,7 @@
 require('should');
 require('underscore');
 var binary = require('binary');
-var BufferMaker = require('../lib/buffermaker').BufferMaker;
+var BufferMaker = require('buffermaker');
 var Message = require('../lib/message').Message;
 
 describe("Message", function(){
