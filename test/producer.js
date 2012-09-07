@@ -1,4 +1,5 @@
 require('should');
+var binary = require('binary');
 var net = require('net');
 var Producer = require('../lib/producer').Producer;
 var BufferMaker = require('buffermaker');
@@ -74,4 +75,53 @@ describe("Producer", function(){
       producer.encode(message).should.eql(fullMessage);
     });
   });
+
+      describe("Request Encoding", function(){
+        it("should binary encode an empty request", function() {
+          var fullRequest = new BufferMaker()
+                              .UInt8(0)
+                              .UInt8(0)
+                              .UInt8(0)
+                              .UInt8(16)
+                              .UInt8(0)
+                              .UInt8(0)
+                              .UInt8(0)
+                              .UInt8(4)
+                              .string('test')
+                              .UInt64BE(0)
+                              .make();
+          var producer = new Producer();
+          var request = producer.encodeRequest([]);
+          request.length.should.equal(20);
+          request.should.eql(fullRequest);
+        }); 
+
+      });
+
+
+      it("should binary encode a request with a message, using a specific wire format", function(){
+        var producer = new Producer();
+        var message = new Message("ale");
+
+        var encodedRequest = producer.encodeRequest([message]);
+        var unpacked = binary.parse(encodedRequest)
+        .word32bu('dataSize')
+        .word16bu('requestId')
+        .word16bu('topicLength')
+        .buffer('topic', 4)
+        .word32bu('partition')
+        .word32bu('messagesLength')
+        .tap(function(vars){
+          this.buffer('messages', vars.messagesLength);
+        })
+        .vars;
+
+        encodedRequest.length.should.equal(33);
+        unpacked.dataSize.should.eql(29);
+        unpacked.requestId.should.eql(0);
+        unpacked.topicLength.should.eql(4);
+        unpacked.topic.toString('utf8').should.eql("test");
+        unpacked.partition.should.eql(0);
+       unpacked.messagesLength.should.eql(13);
+      });
 });
