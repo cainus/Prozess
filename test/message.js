@@ -18,7 +18,8 @@ describe("Message", function(){
     this.message.checksum.should.equal(0);
   });
 
-  it("should set a default value of zero", function(){
+  it("should set a default value of one", function(){
+    console.log(this.message);
     this.message.magic.should
           .equal(this.message.MAGIC_IDENTIFIER_DEFAULT);
   });
