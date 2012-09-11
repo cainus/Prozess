@@ -88,7 +88,7 @@ describe("Producer", function(){
                               .UInt8(0)
                               .UInt8(4)
                               .string('test')
-                              .UInt64BE(0)
+                              .Int64BE(0)
                               .make();
           var producer = new Producer();
           var request = producer.encodeRequest([]);
