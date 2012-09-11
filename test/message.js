@@ -10,7 +10,7 @@ describe("Message", function(){
   });
 
   it("should have a default magic number", function(){
-    this.message.MAGIC_IDENTIFIER_DEFAULT.should.equal(0);
+    this.message.MAGIC_IDENTIFIER_DEFAULT.should.equal(1);
   });
 
   it("should have a checksum and a payload", function(){
