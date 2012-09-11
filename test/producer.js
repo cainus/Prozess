@@ -38,7 +38,7 @@ describe("Producer", function(){
 
   describe("Message Encoding", function(){
     it("should encode a  >= 0.7 message", function(){
-      var message = new Message("foobar");
+      var message = new Message("kafkatest");
       var fullMessage = new BufferMaker()
       .UInt8(message.magic)
       .UInt8(message.compression)
