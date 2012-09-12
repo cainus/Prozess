@@ -1,5 +1,6 @@
 require('should');
 var net = require('net');
+var bignum = require('bignum');
 var _ = require('underscore');
 var Consumer = require('../lib/consumer').Consumer;
 var BufferMaker = require('buffermaker');
@@ -128,15 +129,40 @@ describe("Consumer", function(){
      this.consumer.connect();
      this.consumer.sendConsumeRequest();
     });
-describe("encodeOffsetsRequests", function(){
-  it("should fetch the latest offset" , function(){
-    var expectedBytes = new BufferMaker();
-    
-    var consumer = new Consumer();
-    var request = consumer.encodeOffsetsRequest(-1);
-    request.should.eql(expectedBytes);
-  });
-});
+    //describe("decodeOffsetsResponse", function(){
+      //it("should decode an offsetRequest response" , function(){
+        //var responseBytes = new BufferMaker()
+                                //.make();
+        //var consumer = new Consumer({ partition : 3 });
+        //var response = consumer.decodeOffsetsResponse(responseBytes);
+        //response.should.eql();
+        
+
+      //});
+
+    //});
+
+    describe("encodeOffsetsRequests", function(){
+      it("should fetch the latest offset" , function(){
+        var expectedBytes = new BufferMaker()
+        .UInt8(0)
+        .UInt8(0)
+        .UInt8(0)
+        .UInt8(24) // request length
+        .UInt8(0)
+        .UInt8(4)  // request type
+        .UInt8(0)
+        .UInt8(4)  // topic length
+        .string('test')
+        .Int32BE(3)  // partition
+        .string(new Buffer([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]))
+        .UInt32BE(1)  // max # of offsets
+        .make();
+        var consumer = new Consumer({ partition : 3 });
+        var request = consumer.encodeOffsetsRequest(-1);
+        request.should.eql(expectedBytes);
+      });
+    });
     describe("getLatestOffsets", function(){
       it("should retrive latest max offset", function(){
         var consumer = new Consumer();
