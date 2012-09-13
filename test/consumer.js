@@ -1,8 +1,9 @@
 require('should');
 var net = require('net');
+var bignum = require('bignum');
 var _ = require('underscore');
 var Consumer = require('../lib/consumer').Consumer;
-
+var BufferMaker = require('buffermaker');
 
 describe("Consumer", function(){
   beforeEach(function(done){
@@ -86,15 +87,21 @@ describe("Consumer", function(){
       this.consumer.encodedRequestSize().should.eql(buffer);
     });
 
+    
+
     it("should encode a request to consume", function(){
-      var bytes = new Buffer(24);
-      bytes.writeUInt16BE(this.consumer.RequestType.FETCH, 0);
-      bytes.writeUInt16BE("test".length, 2);
-      bytes.write("test", 4);
-      bytes.writeUInt32BE(0, 8);
-      bytes.writeUInt32BE(0, 12);
-      bytes.writeUInt32BE(0, 16);
-      bytes.writeUInt32BE(this.consumer.MAX_SIZE, 20);
+      var bytes = new BufferMaker()
+      .UInt16BE(this.consumer.RequestType.FETCH)
+      .UInt16BE(this.consumer.topic.length)
+      .string("test")
+      .UInt32BE(0)
+      .UInt32BE(0)
+      .UInt32BE(0)
+      .UInt32BE(this.consumer.MAX_SIZE)
+      .make();
+
+
+      //var bytes = new Buffer(24);
 
       this.consumer.encodeRequest(this.consumer.RequestType.FETCH,
                                   "test",
@@ -122,6 +129,46 @@ describe("Consumer", function(){
      this.consumer.connect();
      this.consumer.sendConsumeRequest();
     });
+    //describe("decodeOffsetsResponse", function(){
+      //it("should decode an offsetRequest response" , function(){
+        //var responseBytes = new BufferMaker()
+                                //.make();
+        //var consumer = new Consumer({ partition : 3 });
+        //var response = consumer.decodeOffsetsResponse(responseBytes);
+        //response.should.eql();
+        
+
+      //});
+
+    //});
+
+    describe("encodeOffsetsRequests", function(){
+      it("should fetch the latest offset" , function(){
+        var expectedBytes = new BufferMaker()
+        .UInt8(0)
+        .UInt8(0)
+        .UInt8(0)
+        .UInt8(24) // request length
+        .UInt8(0)
+        .UInt8(4)  // request type
+        .UInt8(0)
+        .UInt8(4)  // topic length
+        .string('test')
+        .Int32BE(3)  // partition
+        .string(new Buffer([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]))
+        .UInt32BE(1)  // max # of offsets
+        .make();
+        var consumer = new Consumer({ partition : 3 });
+        var request = consumer.encodeOffsetsRequest(-1);
+        request.should.eql(expectedBytes);
+      });
+    });
+    describe("getLatestOffsets", function(){
+      it("should retrive latest max offset", function(){
+        var consumer = new Consumer();
+        //consumer.getLatestOffsets( ...
+      });
+    });
 
 
   });
@@ -129,104 +176,3 @@ describe("Consumer", function(){
 
 });
 
-/*
- 
- RUBY
-  describe "Kafka Consumer" do
-  
-    it "should read the response data" do
-      bytes = [0].pack("n") + [1120192889].pack("N") + "ale"
-      @mocked_socket.should_receive(:read).and_return([9].pack("N"))
-      @mocked_socket.should_receive(:read).with(9).and_return(bytes)
-      @consumer.read_data_response.should eql(bytes[2,7])
-    end
-
-    it "should parse a message set from bytes" do
-      bytes = [8].pack("N") + [0].pack("C") + [1120192889].pack("N") + "ale"
-      message = @consumer.parse_message_set_from(bytes).first
-      message.payload.should eql("ale")
-      message.checksum.should eql(1120192889)
-      message.magic.should eql(0)
-      message.valid?.should eql(true)
-    end
-
-    it "should skip an incomplete message at the end of the response" do
-      bytes = [8].pack("N") + [0].pack("C") + [1120192889].pack("N") + "ale"
-      # incomplete message
-      bytes += [8].pack("N")
-      messages = @consumer.parse_message_set_from(bytes)
-      messages.size.should eql(1)
-    end
-
-    it "should skip an incomplete message at the end of the response which has the same length as an empty message" do
-      bytes = [8].pack("N") + [0].pack("C") + [1120192889].pack("N") + "ale"
-      # incomplete message because payload is missing
-      bytes += [8].pack("N") + [0].pack("C") + [1120192889].pack("N")
-      messages = @consumer.parse_message_set_from(bytes)
-      messages.size.should eql(1)
-    end
-
-    it "should read empty messages correctly" do
-      # empty message
-      bytes = [5].pack("N") + [0].pack("C") + [0].pack("N") + ""
-      messages = @consumer.parse_message_set_from(bytes)
-      messages.size.should eql(1)
-      messages.first.payload.should eql("")
-    end
-
-    it "should consume messages" do
-      @consumer.should_receive(:send_consume_request).and_return(true)
-      @consumer.should_receive(:read_data_response).and_return("")
-      @consumer.consume.should eql([])
-    end
-
-    it "should loop and execute a block with the consumed messages" do
-      @consumer.stub!(:consume).and_return([mock(Kafka::Message)])
-      messages = []
-      messages.should_receive(:<<).exactly(:once).and_return([])
-      @consumer.loop do |message|
-        messages << message
-        break # we don't wanna loop forever on the test
-      end
-    end
-
-    it "should loop (every N seconds, configurable on polling attribute), and execute a block with the consumed messages" do
-      @consumer = Consumer.new({ :polling => 1 })
-      @consumer.stub!(:consume).and_return([mock(Kafka::Message)])
-      messages = []
-      messages.should_receive(:<<).exactly(:twice).and_return([])
-      executed_times = 0
-      @consumer.loop do |message|
-        messages << message
-        executed_times += 1
-        break if executed_times >= 2 # we don't wanna loop forever on the test, only 2 seconds
-      end
-
-      executed_times.should eql(2)
-    end
-
-    it "should fetch initial offset if no offset is given" do
-      @consumer = Consumer.new
-      @consumer.should_receive(:fetch_latest_offset).exactly(:once).and_return(1000)
-      @consumer.should_receive(:send_consume_request).and_return(true)
-      @consumer.should_receive(:read_data_response).and_return("")
-      @consumer.consume
-      @consumer.offset.should eql(1000)
-    end
-
-    it "should encode an offset request" do
-      bytes = [Kafka::RequestType::OFFSETS].pack("n") + ["test".length].pack("n") + "test" + [0].pack("N") + [-1].pack("q").reverse + [Kafka::Consumer::MAX_OFFSETS].pack("N")
-      @consumer.encode_request(Kafka::RequestType::OFFSETS, "test", 0, -1, Kafka::Consumer::MAX_OFFSETS).should eql(bytes)
-    end
-
-    it "should parse an offsets response" do
-      bytes = [0].pack("n") + [1].pack('N') + [21346].pack('q').reverse
-      @mocked_socket.should_receive(:read).and_return([14].pack("N"))
-      @mocked_socket.should_receive(:read).and_return(bytes)
-      @consumer.read_offsets_response.should eql(21346)
-    end
-  end
-end
-
-
-*/
