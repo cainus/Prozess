@@ -1,7 +1,7 @@
 var OffsetsResponse = require('../lib/offsetsResponse');
 var should = require('should');
 var bignum = require('bignum');
-var BufferMaker = require('BufferMaker');
+var BufferMaker = require('buffermaker');
 
 describe("OffsetsResponse", function() {
   it ("should have an offsets property", function(){
