@@ -95,49 +95,8 @@ describe("Consumer", function(){
 
   });
 
-  describe("#encodedRequestSize", function(){
 
-    it("should return the size of the request", function(){
-      var consumer = new Consumer();
-      consumer.topic = "someothertopicname";
-      console.log("someothertopic".length);
-      console.log(consumer.encodedRequestSize());
-      var buffer = new Buffer(4);
-      buffer.writeUInt32BE(38, 0);
-      consumer.encodedRequestSize().should.eql(buffer);
-    });
-
-  });
-  describe("#encodedRequest", function(){
-
-    it("should encode a request to consume", function(){
-      var consumer = new Consumer();
-      var bytes = new BufferMaker()
-      .UInt16BE(consumer.RequestType.FETCH)
-      .UInt16BE(consumer.topic.length)
-      .string("test")
-      .UInt32BE(0)
-      .UInt32BE(0)
-      .UInt32BE(0)
-      .UInt32BE(consumer.maxMessageSize)
-      .make();
-
-
-      //var bytes = new Buffer(24);
-
-      consumer.encodeRequest(consumer.RequestType.FETCH,
-                                  "test",
-                                  0,
-                                  0,
-                                  consumer.maxMessageSize).should.eql(bytes);
-    });
-  });
-
-
-
-
-
-  describe("#sendConsumerRequest", function(){
+  describe("#sendConsumeRequest", function(){
     it("should send a consumer request", function(done){
       var consumer = new Consumer({ port : 9092});
       this.server = net.createServer(function(listener){
@@ -247,28 +206,6 @@ describe("Consumer", function(){
 
     });
 
-  });
-
-  describe("#encodeOffsetsRequests", function(){
-    it("should fetch the latest offset" , function(){
-      var expectedBytes = new BufferMaker()
-      .UInt8(0)
-      .UInt8(0)
-      .UInt8(0)
-      .UInt8(24) // request length
-      .UInt8(0)
-      .UInt8(4)  // request type
-      .UInt8(0)
-      .UInt8(4)  // topic length
-      .string('test')
-      .Int32BE(3)  // partition
-      .string(new Buffer([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]))
-      .UInt32BE(1)  // max # of offsets
-      .make();
-      var consumer = new Consumer({ partition : 3 });
-      var request = consumer.encodeOffsetsRequest(-1);
-      request.should.eql(expectedBytes);
-    });
   });
 
   describe("#consume", function(){
