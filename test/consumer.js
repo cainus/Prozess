@@ -292,7 +292,7 @@ describe("Consumer", function(){
            console.log("unpacked: ", unpacked);
            console.log("data.length: ", data.length);
            var totalExpectedLength = unpacked.length + 4;  // 4 bytes for the length field
-           if (totalExpectedLength >= data.length){
+           if (data.length >= totalExpectedLength ){
              requestBuffer = requestBuffer.slice(totalExpectedLength);
              console.log("requestBuffer truncated to: ", requestBuffer);
 
