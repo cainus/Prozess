@@ -1,4 +1,4 @@
-var Consumer = require('./lib/consumer').Consumer;
+var Consumer = require('./lib/consumer');
 
 
 var consumer = new Consumer({offset : 0});
