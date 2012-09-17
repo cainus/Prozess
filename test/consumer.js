@@ -35,59 +35,66 @@ describe("Consumer", function(){
     closeServer(this.server, done);
   });
 
-  describe("Kafka Consumer", function(){
+  describe("#ctor", function(){
 
-    it("should have a Kafka::RequestType::FETCH", function(){
+    it("creates a consumer that knows about the fetch message type", function(){
       var consumer = new Consumer();
       consumer.RequestType.FETCH.should.equal(1);
     });
 
-    it("should have a default topic", function(){
+    it("creates a consumer with a default topic", function(){
       var consumer = new Consumer();
       consumer.topic.should.equal('test');
     });
 
-    it("should have a default partition", function(){
+    it("creates a consumer withi a default partition", function(){
       var consumer = new Consumer();
       consumer.partition.should.equal(0);
     });
 
-    it("should have a default polling time", function(){
+    it("creates a consumer with a default polling time", function(){
       var consumer = new Consumer();
       consumer.polling.should.equal(2);
     });
 
-    it("should set a topic on initialize", function(){
+    it("creates a consumer with a passed in topic", function(){
       var consumer = new Consumer({topic:"newtopic"});
       consumer.topic.should.equal("newtopic");
     });
- 
-    it("should set a partition on initialize", function(){
+
+    it("creates a consumer with a passed in partition", function(){
       var consumer = new Consumer({partition:3});
       consumer.partition.should.equal(3);
     });
 
-    it("should set default host if none is specified", function(){
+    it("creates a consumer with a default host of 'localhost'", function(){
       var consumer = new Consumer();
       consumer.host.should.equal('localhost');
     });
 
-    it("should set a default port if none is specified", function(){
+    it("creates a consumer with a default port of 9092", function(){
       var consumer = new Consumer();
       consumer.port.should.equal(9092);
     });
-   
-    it("should not have a default offset but be able to set it", function(){
+
+    it("creates a consumer with a default offset of null", function(){
       var consumer = new Consumer();
-      //should.not.exist(consumer.offset);
-      consumer = new Consumer({offset:1111});
+      should.not.exist(consumer.offset);
+    });
+
+    it("creates a consumer with a passed in offset", function(){
+      var consumer = new Consumer({offset:1111});
       consumer.offset.should.equal(1111);
     });
 
-    it("should have a max size", function(){
+    it("creates a consumer withshould have a maximum message size", function(){
       var consumer = new Consumer();
-      consumer.max_size.should.equal(1048576);
+      consumer.maxMessageSize.should.equal(1048576);
     });
+
+  });
+
+  describe("#encodedRequestSize", function(){
 
     it("should return the size of the request", function(){
       var consumer = new Consumer();
@@ -99,7 +106,8 @@ describe("Consumer", function(){
       consumer.encodedRequestSize().should.eql(buffer);
     });
 
-    
+  });
+  describe("#encodedRequest", function(){
 
     it("should encode a request to consume", function(){
       var consumer = new Consumer();
@@ -110,7 +118,7 @@ describe("Consumer", function(){
       .UInt32BE(0)
       .UInt32BE(0)
       .UInt32BE(0)
-      .UInt32BE(consumer.MAX_SIZE)
+      .UInt32BE(consumer.maxMessageSize)
       .make();
 
 
@@ -120,106 +128,149 @@ describe("Consumer", function(){
                                   "test",
                                   0,
                                   0,
-                                  consumer.MAX_SIZE).should.eql(bytes);
+                                  consumer.maxMessageSize).should.eql(bytes);
     });
+  });
 
 
 
 
 
-    describe("#sendConsumerRequest", function(){
-      it("should send a consumer request", function(done){
-        var consumer = new Consumer({ port : 9092});
-        this.server = net.createServer(function(listener){
-          listener.on('data', function(data){
-            console.log("got some dater");
-            var expected = "00 00 00 18 00 01 00 04 74 65 73 74 00 00 00 00 00 00 00 00 00 00 00 00 00 10 00 00";
-            expected = expected.split(" ");
-            expected = _.map(expected, function(datum){
-              return parseInt(datum, 16);
-            });
-            data.should.eql(new Buffer(expected));
-            console.log("writing back to consumer...");
-            listener.write('some data');
-            console.log("got this far.  I'm awesome");
+  describe("#sendConsumerRequest", function(){
+    it("should send a consumer request", function(done){
+      var consumer = new Consumer({ port : 9092});
+      this.server = net.createServer(function(listener){
+        listener.on('data', function(data){
+          console.log("got some dater");
+          var expected = "00 00 00 18 00 01 00 04 74 65 73 74 00 00 00 00 00 00 00 00 00 00 00 00 00 10 00 00";
+          expected = expected.split(" ");
+          expected = _.map(expected, function(datum){
+            return parseInt(datum, 16);
           });
-
+          data.should.eql(new Buffer(expected));
+          console.log("writing back to consumer...");
+          listener.write('some data');
+          console.log("got this far.  I'm awesome");
         });
 
-        var server = this.server;
-        this.server.listen(9092, function(){
-          consumer.connect(function(err){
-            console.log("connect connected");
-            consumer.sendConsumeRequest(0, function(err, messageSet){
-              console.log("sent consume request");
-              done();
-            });
-          });
+      });
 
+      var server = this.server;
+      this.server.listen(9092, function(){
+        consumer.connect(function(err){
+          console.log("connect connected");
+          consumer.sendConsumeRequest(0, function(err, messageSet){
+            console.log("sent consume request");
+            done();
+          });
         });
+
       });
     });
+  });
 
 
-    describe("getOffsets", function(){
+  describe("#getOffsets", function(){
 
-      it("should send an offset request and give a response object" , function(done){
-       this.server = net.createServer(function(listener){
-         listener.on('data', function(data){
-           // TODO validate the incoming offets request
+    it("should send an offset request and give a response object" , function(done){
+     this.server = net.createServer(function(listener){
+       listener.on('data', function(data){
+         // TODO validate the incoming offets request
 
-           // create a response
-           var binaryResponse = new BufferMaker()
-           .UInt32BE(22)   // response length
-           .UInt16BE(0)  // error code
-           .UInt32BE(2)    // number of offsets
+         // create a response
+         var binaryResponse = new BufferMaker()
+         .UInt32BE(22)   // response length
+         .UInt16BE(0)  // error code
+         .UInt32BE(2)    // number of offsets
+         .Int64BE(0)   // offset 1
+         .Int64BE(23)   // offset 23
+         .make();
+
+         listener.write(binaryResponse);
+       });
+
+     });
+
+     this.server.listen(9092, function(){
+     });
+
+     var consumer = new Consumer();
+     consumer.connect(function(err){
+       consumer.getOffsets(function(err, offsets){
+         if (err) { throw err; }
+         offsets.length.should.equal(2);
+         offsets[1].eq(23).should.equal(true);
+         done();
+       });
+     });
+
+    });
+
+    it("should send an offset request OVER TIME and give a response object" , function(done){
+     this.server = net.createServer(function(listener){
+       listener.on('data', function(data){
+         // TODO validate the incoming offets request
+
+         // create a response
+         var binaryResponse = new BufferMaker()
+         .UInt32BE(22)   // response length
+         .UInt16BE(0)  // error code
+         .UInt32BE(2)    // number of offsets
+         .make();
+         listener.write(binaryResponse);
+
+         setTimeout(function(){
+           binaryResponse = new BufferMaker()
            .Int64BE(0)   // offset 1
            .Int64BE(23)   // offset 23
            .make();
 
            listener.write(binaryResponse);
-         });
-
+         }, 120);  // 120 ms delay on second half
        });
 
-       this.server.listen(9092, function(){
-       });
+     });
 
-       var consumer = new Consumer();
-       consumer.connect(function(err){
-         console.log("This test connected");
-         consumer.getOffsets(function(err, offsets){
-           offsets.length.should.equal(2);
-           offsets[1].eq(23).should.equal(true);
-           done();
-         });
-       });
+     this.server.listen(9092, function(){
+     });
 
-      });
+     var consumer = new Consumer();
+     consumer.connect(function(err){
+       consumer.getOffsets(function(err, offsets){
+         if (err) { throw err; }
+         offsets.length.should.equal(2);
+         offsets[1].eq(23).should.equal(true);
+         done();
+       });
+     });
 
     });
 
-    describe("encodeOffsetsRequests", function(){
-      it("should fetch the latest offset" , function(){
-        var expectedBytes = new BufferMaker()
-        .UInt8(0)
-        .UInt8(0)
-        .UInt8(0)
-        .UInt8(24) // request length
-        .UInt8(0)
-        .UInt8(4)  // request type
-        .UInt8(0)
-        .UInt8(4)  // topic length
-        .string('test')
-        .Int32BE(3)  // partition
-        .string(new Buffer([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]))
-        .UInt32BE(1)  // max # of offsets
-        .make();
-        var consumer = new Consumer({ partition : 3 });
-        var request = consumer.encodeOffsetsRequest(-1);
-        request.should.eql(expectedBytes);
-      });
+  });
+
+  describe("#encodeOffsetsRequests", function(){
+    it("should fetch the latest offset" , function(){
+      var expectedBytes = new BufferMaker()
+      .UInt8(0)
+      .UInt8(0)
+      .UInt8(0)
+      .UInt8(24) // request length
+      .UInt8(0)
+      .UInt8(4)  // request type
+      .UInt8(0)
+      .UInt8(4)  // topic length
+      .string('test')
+      .Int32BE(3)  // partition
+      .string(new Buffer([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]))
+      .UInt32BE(1)  // max # of offsets
+      .make();
+      var consumer = new Consumer({ partition : 3 });
+      var request = consumer.encodeOffsetsRequest(-1);
+      request.should.eql(expectedBytes);
     });
+  });
+
+  describe("#consume", function(){
 
     it ("should consume with the latest offset if no offset is provided", function(done){
        this.server = net.createServer(function(listener){
