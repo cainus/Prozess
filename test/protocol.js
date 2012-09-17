@@ -1,6 +1,6 @@
 var should = require('should');
 var binary = require('binary');
-var BufferMaker = require('BufferMaker');
+var BufferMaker = require('buffermaker');
 var Message = require('../lib/message').Message;
 var Protocol = require('../lib/Protocol');
 
