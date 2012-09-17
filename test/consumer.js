@@ -4,6 +4,7 @@ var bignum = require('bignum');
 var _ = require('underscore');
 var Consumer = require('../lib/consumer');
 var BufferMaker = require('buffermaker');
+var binary = require('binary');
 
 
 function closeServer(server, cb){
@@ -275,44 +276,62 @@ describe("Consumer", function(){
     it ("should consume with the latest offset if no offset is provided", function(done){
        this.server = net.createServer(function(listener){
          var request = 0;
+         var requestBuffer = new Buffer([]);
+
          listener.on('data', function(data){
-           request++;
+           console.log("got data: ", data);
+           requestBuffer = Buffer.concat([requestBuffer, data]);
+           data = requestBuffer;
+           // check if it's a full request:
 
-           switch(request){
-             case 1 :
-                 // fake fetch response!
-                 console.log("step 4. writing fetch response");
-                 var fetchResponse = new BufferMaker()
-                 .UInt32BE(22)   // response length
-                 .UInt16BE(0)  // error code
-                 .UInt32BE(2)    // number of offsets
-                 .Int64BE(0)   // offset 1
-                 .Int64BE(23)   // offset 23
-                 .make();
+           var unpacked = binary(requestBuffer)
+                            .word32bu("length")
+                            .word16bu("type")
+                            .vars;
 
-                 listener.write(fetchResponse);
-                 break;
-              case 2:
-                console.log("step 5. writing a messages response");
-                // fake messages response!
+           console.log("unpacked: ", unpacked);
+           console.log("data.length: ", data.length);
+           var totalExpectedLength = unpacked.length + 4;  // 4 bytes for the length field
+           if (totalExpectedLength >= data.length){
+             requestBuffer = requestBuffer.slice(totalExpectedLength);
+             console.log("requestBuffer truncated to: ", requestBuffer);
 
-                var messagesResponse = new BufferMaker()
-                                .UInt32BE(9)
-                                .UInt8(1)
-                                .UInt8(0)
-                                .UInt32BE(1120192889)
-                                .string("ale")
-                                .UInt32BE(12)
-                                .UInt8(1)
-                                .UInt8(0)
-                                .UInt32BE(2666930069)
-                                .string("foobar")
-                                .make();
+             switch(unpacked.type){
+               case 4 :  // OFFSETS
+                   // fake offsets response!
+                   console.log("step 4. writing fetch response");
+                   var fetchResponse = new BufferMaker()
+                   .UInt32BE(22)   // response length
+                   .UInt16BE(0)  // error code
+                   .UInt32BE(2)    // number of offsets
+                   .Int64BE(0)   // offset 1
+                   .Int64BE(23)   // offset 23
+                   .make();
 
-                listener.write(messagesResponse);
-                break;
-              default : throw "WTH!";
-          }
+                   listener.write(fetchResponse);
+                   break;
+                case 1:  // MESSAGES
+                  console.log("step 5. writing a messages response");
+                  // fake messages response!
+
+                  var messagesResponse = new BufferMaker()
+                                  .UInt32BE(9)
+                                  .UInt8(1)
+                                  .UInt8(0)
+                                  .UInt32BE(1120192889)
+                                  .string("ale")
+                                  .UInt32BE(12)
+                                  .UInt8(1)
+                                  .UInt8(0)
+                                  .UInt32BE(2666930069)
+                                  .string("foobar")
+                                  .make();
+
+                  listener.write(messagesResponse);
+                  break;
+                default : throw "unknown request type: " + unpacked.type;
+             }
+           }
          });
 
        });
