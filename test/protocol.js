@@ -46,17 +46,6 @@ describe("Protocol", function(){
     });
   });
 
-  describe("#encodedRequestSize", function(){
-
-    it("should return the size of the request", function(){
-      var protocol = new Protocol("someothertopicname", 0);
-      var buffer = new Buffer(4);
-      buffer.writeUInt32BE(38, 0);
-      protocol.encodedRequestSize().should.eql(buffer);
-    });
-
-  });
-
   describe("#encodeOffsetsRequests", function(){
     it("should fetch the latest offset" , function(){
       var expectedBytes = new BufferMaker()
@@ -79,10 +68,11 @@ describe("Protocol", function(){
     });
   });
 
-  describe("#encodedRequest", function(){
+  describe("#encodeFetchRequest", function(){
     it("should encode a request to consume", function(){
       var protocol = new Protocol("test", 0, 14);
       var bytes = new BufferMaker()
+      .UInt32BE(24)      // the size of all of it
       .UInt16BE(protocol.RequestTypes.FETCH)
       .UInt16BE(protocol.topic.length)
       .string("test")
@@ -95,9 +85,7 @@ describe("Protocol", function(){
 
       //var bytes = new Buffer(24);
 
-      protocol.encodeRequest(protocol.RequestTypes.FETCH,
-                                  0,
-                                  14).should.eql(bytes);
+      protocol.encodeFetchRequest(0).should.eql(bytes);
     });
 });
 
