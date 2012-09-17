@@ -3,7 +3,7 @@ var net = require('net');
 var bignum = require('bignum');
 var _ = require('underscore');
 var Consumer = require('../lib/consumer');
-var BufferMaker = require('buffermaker');
+var BufferMaker = require('BufferMaker');
 var binary = require('binary');
 
 
