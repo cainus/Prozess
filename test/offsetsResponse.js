@@ -1,4 +1,4 @@
-var OffsetsResponse = require('../lib/offsetsResponse');
+var OffsetsResponse = require('../lib/OffsetsResponse');
 var should = require('should');
 var bignum = require('bignum');
 var BufferMaker = require('buffermaker');

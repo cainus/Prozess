@@ -1,4 +1,4 @@
-var FetchResponse = require('../lib/fetchResponse').FetchResponse;
+var FetchResponse = require('../lib/FetchResponse');
 var _ = require('underscore');
 require('should');
 

@@ -1,9 +1,9 @@
 require('should');
 var binary = require('binary');
 var net = require('net');
-var Producer = require('../lib/producer').Producer;
+var Producer = require('../lib/Producer');
 var BufferMaker = require('buffermaker');
-var Message = require('../lib/message').Message;
+var Message = require('../lib/Message');
 var Protocol = require('../lib/Protocol');
 
 
@@ -13,7 +13,6 @@ describe("Producer", function(){
   });
 
   describe("Kafka Producer", function(){
-
 
     it("should have a default topic id", function(){
       this.producer.topic.should.equal('test');

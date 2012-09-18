@@ -1,7 +1,8 @@
-var Consumer = require('./lib/consumer');
+var Consumer = require('./lib/Consumer');
 
-
-var consumer = new Consumer({host : 'xtnvkafka01.xt.local', topic : 'social', partition : 0});
+var options = {host : 'xtnvkafka01.xt.local', topic : 'social', partition : 0};
+options = {host : 'localhost', topic : 'social', partition : 0};
+var consumer = new Consumer(options);
 consumer.connect(function(){
   console.log("connected!!");
   setInterval(function(){

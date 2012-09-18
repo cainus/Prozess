@@ -2,7 +2,7 @@ require('should');
 require('underscore');
 var binary = require('binary');
 var BufferMaker = require('buffermaker');
-var Message = require('../lib/message').Message;
+var Message = require('../lib/Message');
 
 describe("Message", function(){
   beforeEach(function(){
