@@ -15,10 +15,6 @@ describe("Producer", function(){
   describe("Kafka Producer", function(){
 
 
-    it("should have a request type id", function(){
-      this.producer.requestType.should.equal(0);
-    });
-
     it("should have a default topic id", function(){
       this.producer.topic.should.equal('test');
     }); 

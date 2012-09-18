@@ -135,7 +135,7 @@ describe("Consumer", function(){
     it("should send an offset request and give a response object" , function(done){
      this.server = net.createServer(function(listener){
        listener.on('data', function(data){
-         // TODO validate the incoming offets request
+         // TODO validate the incoming offsets request
 
          // create a response
          var binaryResponse = new BufferMaker()
@@ -166,10 +166,10 @@ describe("Consumer", function(){
 
     });
 
-    it("should send an offset request OVER TIME and give a response object" , function(done){
+    it("sends offset requests, gather the response OVER TIME, and gives response objects" , function(done){
      this.server = net.createServer(function(listener){
        listener.on('data', function(data){
-         // TODO validate the incoming offets request
+         // TODO validate the incoming offsets request
 
          // create a response
          var binaryResponse = new BufferMaker()
@@ -181,7 +181,7 @@ describe("Consumer", function(){
 
          setTimeout(function(){
            binaryResponse = new BufferMaker()
-           .Int64BE(0)   // offset 1
+           .Int64BE(54)   // offset 1
            .Int64BE(23)   // offset 23
            .make();
 
@@ -200,6 +200,7 @@ describe("Consumer", function(){
          if (err) { throw err; }
          offsets.length.should.equal(2);
          offsets[1].eq(23).should.equal(true);
+         console.log("OFFSET: ", consumer.offset);
          done();
        });
      });
@@ -241,7 +242,7 @@ describe("Consumer", function(){
                    .UInt32BE(22)   // response length
                    .UInt16BE(0)  // error code
                    .UInt32BE(2)    // number of offsets
-                   .Int64BE(0)   // offset 1
+                   .Int64BE(54)   // offset 1
                    .Int64BE(23)   // offset 23
                    .make();
 
@@ -285,6 +286,8 @@ describe("Consumer", function(){
              should.not.exist(err);
              messages.length.should.equal(2);
              messages[0].payload.toString().should.equal("ale");
+             console.log(consumer.offset);
+             (consumer.offset.eq(54)).should.equal(true);
              done();
            });
          });
