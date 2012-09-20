@@ -3,6 +3,9 @@ var net = require('net');
 var bignum = require('bignum');
 var _ = require('underscore');
 var Consumer = require('../lib/Consumer');
+var Protocol = require('../lib/Protocol');
+var Message = require('../lib/Message');
+var FetchResponse = require('../lib/FetchResponse');
 var BufferMaker = require('buffermaker');
 var binary = require('binary');
 
@@ -88,7 +91,7 @@ describe("Consumer", function(){
       consumer.offset.should.equal(1111);
     });
 
-    it("creates a consumer withshould have a maximum message size", function(){
+    it("creates a consumer with a maximum message size", function(){
       var consumer = new Consumer();
       consumer.maxMessageSize.should.equal(1048576);
     });
@@ -213,7 +216,6 @@ describe("Consumer", function(){
 
     it ("should consume with the latest offset if no offset is provided", function(done){
        this.server = net.createServer(function(listener){
-         var request = 0;
          var requestBuffer = new Buffer([]);
 
          listener.on('data', function(data){
@@ -238,34 +240,20 @@ describe("Consumer", function(){
                case 4 :  // OFFSETS
                    // fake offsets response!
                    console.log("step 4. writing fetch response");
-                   var fetchResponse = new BufferMaker()
-                   .UInt32BE(22)   // response length
-                   .UInt16BE(0)  // error code
-                   .UInt32BE(2)    // number of offsets
-                   .Int64BE(54)   // offset 1
-                   .Int64BE(23)   // offset 23
-                   .make();
-
-                   listener.write(fetchResponse);
+                   var offsetsResponse = new Protocol().encodeOffsetsResponse([54, 23]);
+                   listener.write(offsetsResponse);
                    break;
+
+
                 case 1:  // MESSAGES
                   console.log("step 5. writing a messages response");
                   // fake messages response!
 
-                  var messagesResponse = new BufferMaker()
-                                  .UInt32BE(9)
-                                  .UInt8(1)
-                                  .UInt8(0)
-                                  .UInt32BE(1120192889)
-                                  .string("ale")
-                                  .UInt32BE(12)
-                                  .UInt8(1)
-                                  .UInt8(0)
-                                  .UInt32BE(2666930069)
-                                  .string("foobar")
-                                  .make();
+                  var fetchResponse = new FetchResponse(0, [new Message("ale"), new Message("foobar")]);
+                  console.log("writing: ", fetchResponse);
+                  console.log("which is: ", fetchResponse.toBytes());
 
-                  listener.write(messagesResponse);
+                  listener.write(fetchResponse.toBytes());
                   break;
                 default : throw "unknown request type: " + unpacked.type;
              }
@@ -274,7 +262,7 @@ describe("Consumer", function(){
 
        });
 
-       var consumer = new Consumer();
+       var consumer = new Consumer({topic : "test"});
        console.log("step 1. created consumer");
        this.server.listen(9092, function(){
          console.log("step 2. server listening");
@@ -282,12 +270,12 @@ describe("Consumer", function(){
            console.log("step 3. client connected");
            console.log("This test connected");
            consumer.consume(function(err, messages){
-             console.log(err, messages);
+             console.log("CONSUME CB input: ", err, messages);
              should.not.exist(err);
              messages.length.should.equal(2);
              messages[0].payload.toString().should.equal("ale");
-             console.log(consumer.offset);
-             (consumer.offset.eq(54)).should.equal(true);
+             console.log("consumer.offset", consumer.offset);
+             (consumer.offset.eq(89)).should.equal(true);
              done();
            });
          });

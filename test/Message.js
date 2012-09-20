@@ -68,7 +68,47 @@ describe("Message", function(){
 
   });
 
-  describe("#parseFrom", function(){
+  describe("#toBytes", function(){
+    it("should encode a  >= 0.7 message", function(){
+      var message = new Message("kafkatest");
+      var fullMessage = new BufferMaker()
+      .UInt32BE(15)
+      .UInt8(message.magic)
+      .UInt8(message.compression)
+      .UInt32BE(message.calculateChecksum())
+      .string(message.payload)
+      .make();
+      message.toBytes().should.eql(fullMessage);
+
+    });
+
+    it("should encode an empty >= 0.7 message", function(){
+      var message = new Message("");
+      var fullMessage = new BufferMaker()
+      .UInt32BE(6)
+      .UInt8(message.magic)
+      .UInt8(message.compression)
+      .UInt32BE(message.calculateChecksum())
+      .string(message.payload)
+      .make();
+      message.toBytes().should.eql(fullMessage);
+    });
+
+    it("should encode strings containing non-ASCII characters", function(){
+
+      var message = new Message("ümlaut");
+      var fullMessage = new BufferMaker()
+      .UInt32BE(12)
+      .UInt8(message.magic)
+      .UInt8(message.compression)
+      .UInt32BE(message.calculateChecksum())
+      .string(message.payload)
+      .make();
+      message.toBytes().should.eql(fullMessage);
+    });
+  });
+
+  describe("#fromBytes2", function(){
 
     it("should parse a message when magic is 0 (kafka <= 0.6)", function(){
       var bytes = new BufferMaker()
@@ -77,7 +117,7 @@ describe("Message", function(){
                 .UInt32BE(1120192889)//checksum
                 .string("ale")
                 .make();
-      Message.parseFrom(bytes, function(err, messageSet){
+      Message.fromBytes2(bytes, function(err, messageSet){
         var message = messageSet.messages[0];
         message.magic.should.equal(0);
         message.checksum.should.equal(1120192889);
@@ -94,24 +134,25 @@ describe("Message", function(){
                 .UInt32BE(1120192889) // checksum
                 .string("ale")
                 .make();
-      var message = Message.parseFrom(bytes).messages[0];
+      var message = Message.fromBytes2(bytes).messages[0];
       message.magic.should.equal(1);
       message.checksum.should.equal(1120192889);
       message.isValid().should.equal(true);
       message.payload.toString().should.equal("ale", 'utf8');
     });
 
-     it("should raise an error if the magic number is not recognised", function(done){
+     it("should raise an error if the magic number is not recognised", function(){
        var bytes = new Buffer(13);
        bytes.writeUInt32BE(8, 0);          // size
        bytes.writeUInt8(2, 4);              // magic
        bytes.writeUInt8(1, 5);              // compression
        bytes.writeUInt32BE(755095536, 6);   // checksum
        bytes.write("ale", 10);
-       Message.parseFrom(bytes, function(err, set){
+       try {
+         Message.fromBytes2(bytes);
+       } catch(err) {
          err.should.equal("Unsupported Kafka message version"); 
-         done();
-       });
+       }
      });
 
      it("should skip an incomplete 0.6 message at the end of the response", function(){
@@ -123,7 +164,7 @@ describe("Message", function(){
                 .UInt32BE(8)
                 .make();
 
-       var messageSet = Message.parseFrom(bytes);
+       var messageSet = Message.fromBytes2(bytes);
        messageSet.messages.length.should.equal(1);
        messageSet.size.should.equal(12); // bytes consumed
      });
@@ -138,7 +179,7 @@ describe("Message", function(){
                 .UInt32BE(8)
                 .make();
 
-       var messageSet = Message.parseFrom(bytes);
+       var messageSet = Message.fromBytes2(bytes);
        messageSet.messages.length.should.equal(1);
        messageSet.size.should.equal(13); // bytes consumed
      });
@@ -154,7 +195,7 @@ describe("Message", function(){
        bytes.writeUInt8(1,17);
        bytes.writeUInt8(0, 18);
        bytes.writeUInt32BE(755095536,19);
-       var messageSet = Message.parseFrom(bytes);
+       var messageSet = Message.fromBytes2(bytes);
        messageSet.messages.length.should.equal(1);
        messageSet.size.should.equal(12); // bytes consumed
      });
@@ -167,7 +208,7 @@ describe("Message", function(){
                 .UInt32BE(0)
                 .string("")
                 .make();
-       var messageSet = Message.parseFrom(bytes);
+       var messageSet = Message.fromBytes2(bytes);
        messageSet.messages.length.should.equal(1);
        messageSet.messages[0].payload.toString().should.equal("");
      });
@@ -194,7 +235,7 @@ describe("Message", function(){
        .UInt32BE(2666930069)
        .string("foobar")
        .make();
-       var messageSet = Message.parseFrom(bytes);
+       var messageSet = Message.fromBytes2(bytes);
        messageSet.messages.length.should.equal(2);
        messageSet.messages[0].isValid().should.equal(true);
        messageSet.messages[0].payload.toString().should.equal("ale", "utf8");

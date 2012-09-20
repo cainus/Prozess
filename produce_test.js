@@ -1,7 +1,8 @@
 var Producer = require('./lib/Producer');
 
-var producer = new Producer({topic : 'social', host : 'localhost'});
+var producer = new Producer('social', {host : 'localhost'});
 producer.connect(function(err){
   if (err) {  throw err; }
-  producer.send({"thisisa" : "test" + new Date()});
+  console.log("producing for ", producer.topic);
+  producer.send('{"thisisa" : "test' + new Date() + '"}');
 });
