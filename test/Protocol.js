@@ -47,25 +47,5 @@ describe("Protocol", function(){
 
 
 
-  describe("#encodeFetchRequest", function(){
-    it("should encode a request to consume", function(){
-      var protocol = new Protocol("test", 0, 14);
-      var bytes = new BufferMaker()
-      .UInt32BE(24)      // the size of all of it
-      .UInt16BE(protocol.RequestTypes.FETCH)
-      .UInt16BE(protocol.topic.length)
-      .string("test")
-      .UInt32BE(0)
-      .UInt32BE(0)
-      .UInt32BE(0)
-      .UInt32BE(protocol.maxMessageSize)
-      .make();
-
-
-      //var bytes = new Buffer(24);
-
-      protocol.encodeFetchRequest(0).should.eql(bytes);
-    });
-});
 
 });
