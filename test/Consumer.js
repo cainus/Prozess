@@ -35,9 +35,9 @@ describe("Consumer", function(){
     if (!this.server){  this.server = null; }
     closeServer(this.server, done);
   });
-  afterEach(function(done){
-    closeServer(this.server, done);
-  });
+  //afterEach(function(done){
+  //  closeServer(this.server, done);
+  //});
 
   describe("#ctor", function(){
 
@@ -112,7 +112,8 @@ describe("Consumer", function(){
           });
           data.should.eql(new Buffer(expected));
           console.log("writing back to consumer...");
-          listener.write('some data');
+          var fetchResponse = new FetchResponse(0, [new Message("ale"), new Message("foobar")]);
+          listener.write(fetchResponse.toBytes());
           console.log("got this far.  I'm awesome");
         });
 
@@ -122,8 +123,15 @@ describe("Consumer", function(){
       this.server.listen(9092, function(){
         consumer.connect(function(err){
           console.log("connect connected");
-          consumer.sendConsumeRequest(0, function(err, messageSet){
-            console.log("sent consume request");
+          consumer.offset = bignum(0);
+          consumer.sendConsumeRequest(function(err, fetchResponse){
+            if (!!err){console.log(err);}
+            should.not.exist(err);
+            console.log(fetchResponse);
+            fetchResponse.error.should.equal(0);
+            fetchResponse.messages.length.should.equal(2);
+            fetchResponse.messages[0].payload.toString().should.equal("ale");
+            if (!!err){throw err;}
             done();
           });
         });
