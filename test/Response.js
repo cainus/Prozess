@@ -1,4 +1,6 @@
 var Response = require('../lib/Response');
+var FetchResponse = require('../lib/FetchResponse');
+var Message = require('../lib/Message');
 var should = require('should');
 var bignum = require('bignum');
 var _ = require('underscore');
@@ -24,11 +26,24 @@ describe("Response", function() {
     Response.Errors.InvalidFetchSize.should.equal(4);
   });
 
-  it ("should parse a response from binary", function(){
-    var data = bufferFromString("00 00 00 25 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00");
-    var response = Response.fromBytes(data);
-    response.error.should.equal(1);
-  
+
+  describe("#fromBytes", function(){
+    it ("should create a Response object from bytes", function(){
+      /*
+        00 00 00 2e 00 00 00 00 00 14
+        01 00 0d 1e e7 ea 74 68 69 73
+        20 69 73 20 61 20 74 65 73 74
+        00 00 00 10 01 00 09 ab 7e a8
+        73 6f 20 69 73 20 74 68 69 73
+      */
+      var bytes = bufferFromString(
+        "00 00 00 2e 00 00 00 00 00 14 01 00 0d 1e e7 ea 74 68 69 73 20 69 73 20 61 20 74 65 73 74 00 00 00 10 01 00 09 ab 7e a8 73 6f 20 69 73 20 74 68 69 73");
+      bytes.should.eql(new FetchResponse(0, [new Message("this is a test"), new Message("so is this")]).toBytes());
+      var res = Response.fromBytes(bytes);
+      res.error.should.equal(0);
+      res.body.length.should.eql(44);
+    });
+
   });
 
 });
