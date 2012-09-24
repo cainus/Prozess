@@ -3,7 +3,6 @@ var net = require('net');
 var bignum = require('bignum');
 var _ = require('underscore');
 var Consumer = require('../lib/Consumer');
-var Protocol = require('../lib/Protocol');
 var Message = require('../lib/Message');
 var FetchResponse = require('../lib/FetchResponse');
 var OffsetsResponse = require('../lib/OffsetsResponse');

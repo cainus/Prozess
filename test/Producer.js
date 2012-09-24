@@ -1,10 +1,6 @@
 require('should');
-var binary = require('binary');
-var net = require('net');
 var Producer = require('../lib/Producer');
 var BufferMaker = require('buffermaker');
-var Message = require('../lib/Message');
-var Protocol = require('../lib/Protocol');
 
 
 describe("Producer", function(){

@@ -1,14 +1,12 @@
 var should = require('should');
-var binary = require('binary');
 var BufferMaker = require('buffermaker');
-var Message = require('../lib/Message');
-var Protocol = require('../lib/Protocol');
+var OffsetsRequest = require('../lib/OffsetsRequest');
 
 
-describe("Protocol", function(){
+describe("OffsetsRequest", function(){
 
-  describe("#encodeOffsetsRequests", function(){
-    it("should fetch the latest offset" , function(){
+  describe("#toBytes", function(){
+    it("should create a buffer representing the request " , function(){
       var expectedBytes = new BufferMaker()
       .UInt8(0)
       .UInt8(0)
@@ -20,11 +18,14 @@ describe("Protocol", function(){
       .UInt8(4)  // topic length
       .string('test')
       .Int32BE(3)  // partition
-      .string(new Buffer([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]))
+      .string(new Buffer([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]))  // -1
       .UInt32BE(1)  // max # of offsets
       .make();
-      var protocol = new Protocol("test", 3);
-      var request = protocol.encodeOffsetsRequest(-1, 1);
+      var topic = "test";
+      var partition = 3;
+      var since = -1;
+      var maxNumber = 1;
+      var request = new OffsetsRequest(topic, partition, since, maxNumber).toBytes();
       request.should.eql(expectedBytes);
     });
   });
