@@ -6,6 +6,7 @@ var Consumer = require('../lib/Consumer');
 var Protocol = require('../lib/Protocol');
 var Message = require('../lib/Message');
 var FetchResponse = require('../lib/FetchResponse');
+var OffsetsResponse = require('../lib/OffsetsResponse');
 var BufferMaker = require('buffermaker');
 var binary = require('binary');
 
@@ -167,8 +168,12 @@ describe("Consumer", function(){
 
      var consumer = new Consumer();
      consumer.connect(function(err){
-       consumer.getOffsets(function(err, offsets){
+       consumer.getOffsets(function(err, offsetsResponse){
+         console.log("err: ", err);
          if (err) { throw err; }
+         console.log("got here!!");
+         if (offsetsResponse.error) { throw offsetsResponse.error; }
+         var offsets = offsetsResponse.offsets;
          offsets.length.should.equal(2);
          offsets[1].eq(23).should.equal(true);
          done();
@@ -207,8 +212,9 @@ describe("Consumer", function(){
 
      var consumer = new Consumer();
      consumer.connect(function(err){
-       consumer.getOffsets(function(err, offsets){
+       consumer.getOffsets(function(err, offsetsResponse){
          if (err) { throw err; }
+         var offsets = offsetsResponse.offsets;
          offsets.length.should.equal(2);
          offsets[1].eq(23).should.equal(true);
          console.log("OFFSET: ", consumer.offset);
@@ -248,8 +254,8 @@ describe("Consumer", function(){
                case 4 :  // OFFSETS
                    // fake offsets response!
                    console.log("step 4. writing fetch response");
-                   var offsetsResponse = new Protocol().encodeOffsetsResponse([54, 23]);
-                   listener.write(offsetsResponse);
+                   var offsetsResponse = new OffsetsResponse(0, [54, 23]);
+                   listener.write(offsetsResponse.toBytes());
                    break;
 
 

@@ -30,19 +30,6 @@ describe("Protocol", function(){
   });
 
 
-  describe("#encodeOffsetsResponse", function(){
-    it ("should encode an offsets response from 2 offsets", function(){
-      var expected = new BufferMaker()
-                   .UInt32BE(22)   // response length
-                   .UInt16BE(0)  // error code
-                   .UInt32BE(2)    // number of offsets
-                   .Int64BE(54)   // offset 1
-                   .Int64BE(23)   // offset 23
-                   .make();
-      new Protocol().encodeOffsetsResponse([54, 23]).should.eql(expected);
-    }); 
-  
-  });
 
 
 

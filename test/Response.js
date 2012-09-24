@@ -26,6 +26,12 @@ describe("Response", function() {
     Response.Errors.InvalidFetchSize.should.equal(4);
   });
 
+  describe("#toBytes", function(){
+      var res = new Response(0, new Buffer([1,2,3,4]));
+      res.toBytes().should.eql(new Buffer([0, 0, 0, 6, 0, 0, 1, 2, 3, 4]));
+  
+  });
+
 
   describe("#fromBytes", function(){
     it ("should create a Response object from bytes", function(){
@@ -42,6 +48,21 @@ describe("Response", function() {
       var res = Response.fromBytes(bytes);
       res.error.should.equal(0);
       res.body.length.should.eql(44);
+    });
+    it ("throws an 'incomplete response' exception on incomplete responses", function(){
+      var binaryResponse = new BufferMaker()
+                              .UInt32BE(22) // response length
+                              .UInt16BE(0)  // error code
+                              .UInt32BE(2)  // number of offsets
+                              .Int64BE(0)   // offset 1
+                              // missing the second offset here.
+                              .make();
+      try {
+        Response.fromBytes(binaryResponse);
+        should.fail("expected exception was not raised");
+      } catch (ex){ 
+        ex.should.equal("incomplete response");
+      }
     });
 
   });
