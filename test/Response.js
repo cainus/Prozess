@@ -29,9 +29,7 @@ describe("Response", function() {
   describe("#toBytes", function(){
       var res = new Response(0, new Buffer([1,2,3,4]));
       res.toBytes().should.eql(new Buffer([0, 0, 0, 6, 0, 0, 1, 2, 3, 4]));
-  
   });
-
 
   describe("#fromBytes", function(){
     it ("should create a Response object from bytes", function(){
