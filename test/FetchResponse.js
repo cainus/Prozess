@@ -46,6 +46,15 @@ describe("FetchResponse", function(){
 
     });
 
+    it ("should encode a fetch response from errors", function(){
+      var expected = new BufferMaker()
+                   .UInt32BE(2)  // response length = messages fields (44) + error field (2)
+                   .UInt16BE(1)   // error code
+                   .make();
+      console.log("expected: ", expected, expected.length);
+      (new FetchResponse(1, []).toBytes()).should.eql(expected);
+
+    });
   });
 
   describe("#fromBytes", function(){
@@ -62,7 +71,31 @@ describe("FetchResponse", function(){
       res.messages.length.should.equal(2);
     });
 
+    it ("should handle a no-message response", function(){
+      var bytes = bufferFromString("00 00 00 02 00 00");
+      bytes.should.eql(new FetchResponse(0, []).toBytes());
+      var res = FetchResponse.fromBytes(bytes);
+      console.log("REZ: ", res);
+      console.log("messages: ", res.messages);
+      res.error.should.equal(0);
+      res.messages.length.should.equal(0);
+    });
+
+    it ("should handle an error response", function(){
+      var bytes = bufferFromString("00 00 00 02 00 01");
+      bytes.should.eql(new FetchResponse(1, []).toBytes());
+      var res = FetchResponse.fromBytes(bytes);
+      console.log("REZ: ", res);
+      console.log("messages: ", res.messages);
+      res.error.should.equal(1);
+      res.messages.length.should.equal(0);
+    });
+
+
   });
+
+
+
 
 
 //  beforeEach(function(){

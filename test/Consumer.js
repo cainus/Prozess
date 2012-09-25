@@ -41,11 +41,6 @@ describe("Consumer", function(){
 
   describe("#ctor", function(){
 
-    it("creates a consumer that knows about the fetch message type", function(){
-      var consumer = new Consumer();
-      consumer.RequestType.FETCH.should.equal(1);
-    });
-
     it("creates a consumer with a default topic", function(){
       var consumer = new Consumer();
       consumer.topic.should.equal('test');
