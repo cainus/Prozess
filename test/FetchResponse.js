@@ -25,23 +25,19 @@ describe("FetchResponse", function(){
                                   // only message
                    .string(messageBytes)   // messages
                    .make();
-      console.log("expected: ", expected, expected.length);
       var actual = new FetchResponse(0, [new Message("this is a test")]).toBytes();
-      console.log("actual: ", actual, actual.length);
       actual.should.eql(expected);
 
     });
 
     it ("should encode a fetch response from 2 messages", function(){
       var messageBytes = Buffer.concat([new Message("this is a test").toBytes(), new Message("so is this").toBytes()]);
-      console.log("LENGTH: ", messageBytes.length);
       var expected = new BufferMaker()
                    .UInt32BE(46)  // response length = messages fields (44) + error field (2)
                    .UInt16BE(0)   // error code
                                   // only message
                    .string(messageBytes)   // messages
                    .make();
-      console.log("expected: ", expected, expected.length);
       (new FetchResponse(0, [new Message("this is a test"), new Message("so is this")]).toBytes()).should.eql(expected);
 
     });
@@ -51,7 +47,6 @@ describe("FetchResponse", function(){
                    .UInt32BE(2)  // response length = messages fields (44) + error field (2)
                    .UInt16BE(1)   // error code
                    .make();
-      console.log("expected: ", expected, expected.length);
       (new FetchResponse(1, []).toBytes()).should.eql(expected);
 
     });
@@ -59,15 +54,10 @@ describe("FetchResponse", function(){
 
   describe("#fromBytes", function(){
     it ("should create a FetchResponse object from bytes", function(){
-      //console.log("steal bytes:");
-      //console.log(new FetchResponse(0, [new Message("this is a test"), new Message("so is this")]).toBytes());
-      //console.log("stolen");
       var bytes = bufferFromString(
         "00 00 00 2e 00 00 00 00 00 14 01 00 0d 1e e7 ea 74 68 69 73 20 69 73 20 61 20 74 65 73 74 00 00 00 10 01 00 09 ab 7e a8 73 6f 20 69 73 20 74 68 69 73");
       bytes.should.eql(new FetchResponse(0, [new Message("this is a test"), new Message("so is this")]).toBytes());
       var res = FetchResponse.fromBytes(bytes);
-      console.log("REZ: ", res);
-      console.log("messages: ", res.messages);
       res.messages.length.should.equal(2);
     });
 
@@ -75,8 +65,6 @@ describe("FetchResponse", function(){
       var bytes = bufferFromString("00 00 00 02 00 00");
       bytes.should.eql(new FetchResponse(0, []).toBytes());
       var res = FetchResponse.fromBytes(bytes);
-      console.log("REZ: ", res);
-      console.log("messages: ", res.messages);
       res.error.should.equal(0);
       res.messages.length.should.equal(0);
     });
@@ -85,8 +73,6 @@ describe("FetchResponse", function(){
       var bytes = bufferFromString("00 00 00 02 00 01");
       bytes.should.eql(new FetchResponse(1, []).toBytes());
       var res = FetchResponse.fromBytes(bytes);
-      console.log("REZ: ", res);
-      console.log("messages: ", res.messages);
       res.error.should.equal(1);
       res.messages.length.should.equal(0);
     });

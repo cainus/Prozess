@@ -20,9 +20,7 @@ describe("ProduceRequest", function(){
                             .Int64BE(0)
                             .make();
         var request = new ProduceRequest('test', 0, []);
-        console.log("request: ", request);
         var bytes = request.toBytes();
-        console.log("bytes: ", bytes);
         bytes.length.should.equal(20);
         bytes.should.eql(fullRequest);
       }); 
@@ -41,7 +39,6 @@ describe("ProduceRequest", function(){
       }
 
 
-      console.log("unpacking...");
       var unpacked = binary.parse(encodedRequest)
                       .word32bu('dataSize')
                       .word16bu('requestId')
@@ -54,7 +51,6 @@ describe("ProduceRequest", function(){
                       })
                       .vars;
 
-      console.log("unpacked: ", unpacked);
 
       encodedRequest.length.should.equal(33);
       unpacked.dataSize.should.eql(29);

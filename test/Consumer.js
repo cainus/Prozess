@@ -99,17 +99,14 @@ describe("Consumer", function(){
       var consumer = new Consumer({ port : 9092});
       this.server = net.createServer(function(listener){
         listener.on('data', function(data){
-          console.log("got some dater");
           var expected = "00 00 00 18 00 01 00 04 74 65 73 74 00 00 00 00 00 00 00 00 00 00 00 00 00 10 00 00";
           expected = expected.split(" ");
           expected = _.map(expected, function(datum){
             return parseInt(datum, 16);
           });
           data.should.eql(new Buffer(expected));
-          console.log("writing back to consumer...");
           var fetchResponse = new FetchResponse(0, [new Message("ale"), new Message("foobar")]);
           listener.write(fetchResponse.toBytes());
-          console.log("got this far.  I'm awesome");
         });
 
       });
@@ -117,12 +114,10 @@ describe("Consumer", function(){
       var server = this.server;
       this.server.listen(9092, function(){
         consumer.connect(function(err){
-          console.log("connect connected");
           consumer.offset = bignum(0);
           consumer.sendConsumeRequest(function(err, fetchResponse){
             if (!!err){console.log(err);}
             should.not.exist(err);
-            console.log(fetchResponse);
             fetchResponse.error.should.equal(0);
             fetchResponse.messages.length.should.equal(2);
             fetchResponse.messages[0].payload.toString().should.equal("ale");
@@ -163,9 +158,7 @@ describe("Consumer", function(){
      var consumer = new Consumer();
      consumer.connect(function(err){
        consumer.getOffsets(function(err, offsetsResponse){
-         console.log("err: ", err);
          if (err) { throw err; }
-         console.log("got here!!");
          if (offsetsResponse.error) { throw offsetsResponse.error; }
          var offsets = offsetsResponse.offsets;
          offsets.length.should.equal(2);
@@ -211,7 +204,6 @@ describe("Consumer", function(){
          var offsets = offsetsResponse.offsets;
          offsets.length.should.equal(2);
          offsets[1].eq(23).should.equal(true);
-         console.log("OFFSET: ", consumer.offset);
          done();
        });
      });
@@ -228,11 +220,9 @@ describe("Consumer", function(){
       var randomBytes = new Buffer([0,1,2,3]);
       var messages = [new Message("hello"), new Message("there")];
       var res = new FetchResponse(0, messages).toBytes();
-      console.log("fetch response:", res);
       consumer.responseBuffer = Buffer.concat([res, randomBytes]);
       consumer.handleFetchData(function(err, response){
         should.not.exist(err);
-        console.log("response: ", response);
         response.messages[0].payload.should.eql(new Buffer("hello"));
         response.messages[1].payload.should.eql(new Buffer("there"));
         consumer.responseBuffer.should.eql(new Buffer([0,1,2,3]));
@@ -254,8 +244,6 @@ describe("Consumer", function(){
       var res = new OffsetsResponse(0, [456]).toBytes();
       consumer.responseBuffer = Buffer.concat([res, randomBytes]);
       consumer.handleOffsetsData(function(err, response){
-        console.log("err: ", err);
-        console.log("response: ", response);
         response.error.should.equal(0);
         response.offsets[0].eq(bignum(456)).should.equal(true);
         should.not.exist(err);
@@ -273,7 +261,6 @@ describe("Consumer", function(){
          var requestBuffer = new Buffer([]);
 
          listener.on('data', function(data){
-           console.log("got data: ", data);
            requestBuffer = Buffer.concat([requestBuffer, data]);
            data = requestBuffer;
            // check if it's a full request:
@@ -283,30 +270,22 @@ describe("Consumer", function(){
                             .word16bu("type")
                             .vars;
 
-           console.log("unpacked: ", unpacked);
-           console.log("data.length: ", data.length);
            var totalExpectedLength = unpacked.length + 4;  // 4 bytes for the length field
            if (data.length >= totalExpectedLength ){
              requestBuffer = requestBuffer.slice(totalExpectedLength);
-             console.log("requestBuffer truncated to: ", requestBuffer);
 
              switch(unpacked.type){
                case 4 :  // OFFSETS
                    // fake offsets response!
-                   console.log("step 4. writing fetch response");
                    var offsetsResponse = new OffsetsResponse(0, [54, 23]);
                    listener.write(offsetsResponse.toBytes());
                    break;
 
 
                 case 1:  // MESSAGES
-                  console.log("step 5. writing a messages response");
                   // fake messages response!
 
                   var fetchResponse = new FetchResponse(0, [new Message("ale"), new Message("foobar")]);
-                  console.log("writing: ", fetchResponse);
-                  console.log("which is: ", fetchResponse.toBytes());
-
                   listener.write(fetchResponse.toBytes());
                   break;
                 default : throw "unknown request type: " + unpacked.type;
@@ -317,19 +296,13 @@ describe("Consumer", function(){
        });
 
        var consumer = new Consumer({topic : "test"});
-       console.log("step 1. created consumer");
        this.server.listen(9092, function(){
-         console.log("step 2. server listening");
          consumer.connect(function(err){
-           console.log("step 3. client connected");
-           console.log("This test connected");
            consumer.consume(function(err, messages){
-             console.log("CONSUME CB input: ", err, messages);
              should.not.exist(err);
              messages.length.should.equal(2);
              messages[0].payload.toString().should.equal("ale");
              messages[1].payload.toString().should.equal("foobar");
-             console.log("consumer.offset", consumer.offset);
              (consumer.offset.eq(83)).should.equal(true);
              done();
            });

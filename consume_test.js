@@ -8,7 +8,7 @@ consumer.connect(function(){
   setInterval(function(){
     console.log("===================================================================");
     console.log(new Date());
-    console.log("gonna consume!! " + consumer.topic);
+    console.log("consuming: " + consumer.topic);
     consumer.consume(function(err, messages){
       console.log(err, messages);
     });
