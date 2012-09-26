@@ -1,5 +1,5 @@
 {
-      "name": "Prozess",
+      "name": "prozess",
       "description" : "Prozess is a kafka library for Node.js",
       "keywords" : ["kafka", "producer", "consumer"],
       "version": "0.1.0",
