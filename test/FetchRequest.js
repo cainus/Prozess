@@ -1,4 +1,5 @@
 var FetchRequest = require('../lib/FetchRequest');
+var Request = require('../lib/Request');
 var BufferMaker = require('buffermaker');
 
 var should = require('should');
@@ -7,7 +8,7 @@ describe("#toBytes", function(){
     var fetchRequest = new FetchRequest(33,"test", 0, 10 * 1024 * 1024);
     var bytes = new BufferMaker()
     .UInt32BE(24)      // the size of all of it
-    .UInt16BE(fetchRequest.RequestTypes.FETCH)
+    .UInt16BE(Request.Types.FETCH)
     .UInt16BE(fetchRequest.topic.length)
     .string("test") //topic
     .UInt32BE(0) // partition

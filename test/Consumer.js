@@ -220,6 +220,52 @@ describe("Consumer", function(){
 
   });
 
+  describe("#handleFetchData", function(){
+    it ("should return a fetchResponse object when possible", function(done){
+      var consumer = new Consumer({topic : "test"});
+      consumer.setOffset(123);
+      consumer._setRequestMode('offsets');
+      var randomBytes = new Buffer([0,1,2,3]);
+      var messages = [new Message("hello"), new Message("there")];
+      var res = new FetchResponse(0, messages).toBytes();
+      console.log("fetch response:", res);
+      consumer.responseBuffer = Buffer.concat([res, randomBytes]);
+      consumer.handleFetchData(function(err, response){
+        should.not.exist(err);
+        console.log("response: ", response);
+        response.messages[0].payload.should.eql(new Buffer("hello"));
+        response.messages[1].payload.should.eql(new Buffer("there"));
+        consumer.responseBuffer.should.eql(new Buffer([0,1,2,3]));
+        should.not.exist(consumer.requestMode);
+        consumer.offset.eq(bignum(123 + 
+                                  messages[0].toBytes().length +
+                                  messages[1].toBytes().length )).should.equal(true);
+        done();
+      });
+    });
+
+  });
+  describe("#handleOffsetsData", function(){
+    it ("should return an offsetResponse object when possible", function(done){
+      var consumer = new Consumer({topic : "test"});
+      consumer.setOffset(123);
+      consumer._setRequestMode('offsets');
+      var randomBytes = new Buffer([0,1,2,3]);
+      var res = new OffsetsResponse(0, [456]).toBytes();
+      consumer.responseBuffer = Buffer.concat([res, randomBytes]);
+      consumer.handleOffsetsData(function(err, response){
+        console.log("err: ", err);
+        console.log("response: ", response);
+        response.error.should.equal(0);
+        response.offsets[0].eq(bignum(456)).should.equal(true);
+        should.not.exist(err);
+        consumer.responseBuffer.should.eql(new Buffer([0,1,2,3]));
+        should.not.exist(consumer.requestMode);
+        done();
+      });
+    });
+
+  });
   describe("#consume", function(){
 
     it ("should consume with the latest offset if no offset is provided", function(done){
@@ -282,8 +328,9 @@ describe("Consumer", function(){
              should.not.exist(err);
              messages.length.should.equal(2);
              messages[0].payload.toString().should.equal("ale");
+             messages[1].payload.toString().should.equal("foobar");
              console.log("consumer.offset", consumer.offset);
-             (consumer.offset.eq(89)).should.equal(true);
+             (consumer.offset.eq(83)).should.equal(true);
              done();
            });
          });
