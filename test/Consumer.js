@@ -220,7 +220,6 @@ describe("Consumer", function(){
     });
 
   });
-*/
 
   describe("#handleFetchData", function(){
     it ("should return a fetchResponse object when possible", function(done){
@@ -322,6 +321,7 @@ describe("Consumer", function(){
 
       });
   });
+*/
 
 
 });
