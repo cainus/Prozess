@@ -1,8 +1,8 @@
 var should = require('should');
 var binary = require('binary');
 var BufferMaker = require('buffermaker');
-var Message = require('../lib/Message');
-var ProduceRequest = require('../lib/ProduceRequest');
+var Message = require('../index').Message;
+var ProduceRequest = require('../index').ProduceRequest;
 
 describe("ProduceRequest", function(){
     describe("#toBytes", function(){

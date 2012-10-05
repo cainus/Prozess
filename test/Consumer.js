@@ -2,10 +2,10 @@ var should = require('should');
 var net = require('net');
 var bignum = require('bignum');
 var _ = require('underscore');
-var Consumer = require('../lib/Consumer');
-var Message = require('../lib/Message');
-var FetchResponse = require('../lib/FetchResponse');
-var OffsetsResponse = require('../lib/OffsetsResponse');
+var Consumer = require('../index').Consumer;
+var Message = require('../index').Message;
+var FetchResponse = require('../index').FetchResponse;
+var OffsetsResponse = require('../index').OffsetsResponse;
 var BufferMaker = require('buffermaker');
 var binary = require('binary');
 

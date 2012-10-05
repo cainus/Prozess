@@ -1,5 +1,5 @@
-var FetchResponse = require('../lib/FetchResponse');
-var Message = require('../lib/Message');
+var FetchResponse = require('../index').FetchResponse;
+var Message = require('../index').Message;
 var _ = require('underscore');
 var BufferMaker = require('buffermaker');
 var should = require('should');

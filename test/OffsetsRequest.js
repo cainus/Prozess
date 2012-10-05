@@ -1,6 +1,6 @@
 var should = require('should');
 var BufferMaker = require('buffermaker');
-var OffsetsRequest = require('../lib/OffsetsRequest');
+var OffsetsRequest = require('../index').OffsetsRequest;
 
 
 describe("OffsetsRequest", function(){

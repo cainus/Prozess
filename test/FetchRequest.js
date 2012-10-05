@@ -1,5 +1,5 @@
-var FetchRequest = require('../lib/FetchRequest');
-var Request = require('../lib/Request');
+var FetchRequest = require('../index').FetchRequest;
+var Request = require('../index').Request;
 var BufferMaker = require('buffermaker');
 
 var should = require('should');

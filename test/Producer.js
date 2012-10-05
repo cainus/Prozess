@@ -1,5 +1,5 @@
 require('should');
-var Producer = require('../lib/Producer');
+var Producer = require('../index').Producer;
 var BufferMaker = require('buffermaker');
 
 
