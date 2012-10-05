@@ -101,7 +101,7 @@ describe("Consumer", function(){
 
   });
 
-
+/*
   describe("#sendConsumeRequest", function(){
 
     it("should send a consumer request", function(done){
@@ -131,11 +131,10 @@ describe("Consumer", function(){
             done();
           });
         });
-
       });
     });
   });
-
+*/
 
   describe("#getOffsets", function(){
 
