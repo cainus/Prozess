@@ -101,11 +101,10 @@ describe("Consumer", function(){
 
   });
 
-/*
   describe("#sendConsumeRequest", function(){
 
     it("should send a consumer request", function(done){
-      this.timeout(20000);
+      this.timeout(60000);
       var consumer = new Consumer({ port : 9092});
       this.server = net.createServer(function(listener){
         listener.on('data', function(data){
@@ -134,11 +133,11 @@ describe("Consumer", function(){
       });
     });
   });
-*/
 
   describe("#getOffsets", function(){
 
     it("should send an offset request and give a response object" , function(done){
+     this.timeout(60000);
      this.server = net.createServer(function(listener){
        listener.on('data', function(data){
          // TODO validate the incoming offsets request
@@ -175,6 +174,7 @@ describe("Consumer", function(){
     });
 
     it("sends offset requests, gather the response OVER TIME, and gives response objects" , function(done){
+     this.timeout(60000);
      this.server = net.createServer(function(listener){
        listener.on('data', function(data){
          // TODO validate the incoming offsets request
