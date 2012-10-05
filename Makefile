@@ -1,6 +1,6 @@
 REPORTER = dot
 test:
-	@NODE_ENV=test ./node_modules/.bin/mocha -b --timeout 4000 --reporter $(REPORTER)
+	@NODE_ENV=test ./node_modules/.bin/mocha -b --timeout 2000 --reporter $(REPORTER)
 
 lib-cov:
 	jscoverage lib lib-cov

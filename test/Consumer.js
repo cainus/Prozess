@@ -95,6 +95,11 @@ describe("Consumer", function(){
 
 
   describe("#sendConsumeRequest", function(){
+
+    before(function() {
+        this.timeout(10000);
+    });
+
     it("should send a consumer request", function(done){
       var consumer = new Consumer({ port : 9092});
       this.server = net.createServer(function(listener){
