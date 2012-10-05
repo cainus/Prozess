@@ -9,6 +9,14 @@ var OffsetsResponse = require('../index').OffsetsResponse;
 var BufferMaker = require('buffermaker');
 var binary = require('binary');
 
+function bufferFromString(str){
+    var bytes = str.split(" ");
+    bytes = _.map(bytes, function(datum){
+      return parseInt(datum, 16);
+    });
+    bytes = new Buffer(bytes);
+    return bytes;
+}
 
 function closeServer(server, cb){
   if (!!server){
@@ -97,16 +105,12 @@ describe("Consumer", function(){
   describe("#sendConsumeRequest", function(){
 
     it("should send a consumer request", function(done){
-      this.timeout(10000);
+      this.timeout(20000);
       var consumer = new Consumer({ port : 9092});
       this.server = net.createServer(function(listener){
         listener.on('data', function(data){
           var expected = "00 00 00 18 00 01 00 04 74 65 73 74 00 00 00 00 00 00 00 00 00 00 00 00 00 10 00 00";
-          expected = expected.split(" ");
-          expected = _.map(expected, function(datum){
-            return parseInt(datum, 16);
-          });
-          data.should.eql(new Buffer(expected));
+          data.should.eql(bufferFromString(expected));
           var fetchResponse = new FetchResponse(0, [new Message("ale"), new Message("foobar")]);
           listener.write(fetchResponse.toBytes());
         });
