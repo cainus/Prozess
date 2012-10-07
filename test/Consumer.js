@@ -102,7 +102,6 @@ describe("Consumer", function(){
   });
 
 
-  /*
 
   describe("#sendConsumeRequest", function(){
 
@@ -321,7 +320,6 @@ describe("Consumer", function(){
 
       });
   });
-*/
 
 
 });
