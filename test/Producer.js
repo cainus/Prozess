@@ -1,4 +1,4 @@
-require('should');
+var should = require('should');
 var Producer = require('../index').Producer;
 var BufferMaker = require('buffermaker');
 
@@ -33,6 +33,15 @@ describe("Producer", function(){
         ex.should.equal("the first parameter, topic, is mandatory.");
       }
     });
+    it("should throw an error if no Kafka server is present", function(done) {
+      this.producer.port = 9999;
+      this.producer.on('error', function(err) {
+        should.exist(err);
+        done();
+      });
+      this.producer.connect(function(foo) {
+        should.fail('I SHOULD NEVER BE CALLED');
+      });
+    });
   });
-
 });
