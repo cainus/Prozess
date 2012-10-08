@@ -5,6 +5,7 @@ producer.connect(function(err){
   if (err) {  throw err; }
   console.log("producing for ", producer.topic);
   setInterval(function(){
+  console.log("sending...");
     producer.send('{"thisisa" : "test' + new Date() + '"}');
   }, 1000);
 });

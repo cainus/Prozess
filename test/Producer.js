@@ -1,7 +1,7 @@
 var should = require('should');
 var Producer = require('../index').Producer;
 var BufferMaker = require('buffermaker');
-
+var net = require('net');
 
 describe("Producer", function(){
   beforeEach(function(){
@@ -34,14 +34,39 @@ describe("Producer", function(){
       }
     });
     it("should throw an error if no Kafka server is present", function(done) {
-      this.producer.port = 9999;
+      this.producer.port = 8542;
       this.producer.on('error', function(err) {
         should.exist(err);
         done();
       });
-      this.producer.connect(function(foo) {
-        should.fail('I SHOULD NEVER BE CALLED');
+      this.producer.connect(function() { 
+        should.fail("should not get here"); 
       });
     });
+    /*
+    describe("sending messages", function() {
+      it("SHOULD coerce a single message into a list", function(done) { 
+        var that = this;
+        var server = net.createServer(function (socket) {
+          server.on('data', function(data){
+            console.log("DATA: ", data, " | ", data.toString(), data.length);
+            done();
+          });
+          server.listen(8542, function() { //'listening' listener
+            console.log('server bound');
+            server.timeout(300000);
+            that.producer.port = 8542;
+            that.producer.on('error', function() {
+              console.log('straw');
+            });
+            that.producer.connect(function() {
+              console.log("connected");
+              that.producer.send(new Message('foo'));
+              console.log("post-send");
+            });
+          });
+        });
+      });
+    }); */
   });
 });
