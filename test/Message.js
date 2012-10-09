@@ -6,7 +6,7 @@ var Message = require('../index').Message;
 
 describe("Message", function(){
   beforeEach(function(){
-    this.message = new Message();
+    this.message = new Message('');
   });
   describe("ctor", function(){
 
@@ -37,6 +37,15 @@ describe("Message", function(){
     it("should allow to set a compression type", function(){
         this.message = new Message("ale", 0, 1, 2);
         this.message.compression.should.equal(2);
+    });
+
+    it("should throw an error if payload isn't set", function(){
+      try {
+        var message = new Message();
+        should.fail("expected exception was not raised");
+      } catch(ex){
+        ex.should.equal('payload is a required argument');
+      }
     });
 
   });
