@@ -1,7 +1,9 @@
 var should = require('should');
 var binary = require('binary');
+var _ = require('underscore');
 var BufferMaker = require('buffermaker');
 var Message = require('../index').Message;
+var Request = require('../index').Request;
 var ProduceRequest = require('../index').ProduceRequest;
 
 describe("ProduceRequest", function(){
@@ -59,5 +61,28 @@ describe("ProduceRequest", function(){
       unpacked.topic.toString('utf8').should.eql("test");
       unpacked.partition.should.eql(0);
      unpacked.messagesLength.should.eql(13);
+    });
+    describe(".fromBytes", function(){
+      it("1234 creates a ProduceRequest from a Buffer of messages", function() {
+        var PARTITION = 4;
+        var messagesBuffer = Buffer.concat(
+          _.map(['first', 'second', 'third'], function(str) {
+              return new Message(str).toBytes();
+          })
+        );
+        var messagesLengthBuffer = new BufferMaker().UInt32BE(messagesBuffer.length).make();
+        var bodyBuffer = Buffer.concat([messagesLengthBuffer, messagesBuffer]);
+        var requestBuffer =
+          new Request('topic', PARTITION, Request.Types.PRODUCE, bodyBuffer).toBytes();
+        var actual = ProduceRequest.fromBytes(requestBuffer);
+        true.should.equal(actual instanceof ProduceRequest);
+        actual.topic.should.equal('topic');
+        actual.partition.should.equal(PARTITION);
+        actual.requestType.should.equal(Request.Types.PRODUCE);
+        _.isArray(actual.messages).should.equal(true);
+        actual.messages[0].payload.toString().should.equal('first');
+        actual.messages[1].payload.toString().should.equal('second');
+        actual.messages[2].payload.toString().should.equal('third');
+      });
     });
  });

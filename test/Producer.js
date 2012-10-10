@@ -1,11 +1,35 @@
 var should = require('should');
 var Producer = require('../index').Producer;
+var Message = require('../index').Message;
+var ProduceRequest = require('../index').ProduceRequest;
 var BufferMaker = require('buffermaker');
+var binary = require('binary');
 var net = require('net');
 
+function closeServer(server, cb){
+  if (!!server){
+    try {
+      server.close(function(){
+        cb();
+      });
+      server = null;
+      setTimeout(function(){cb();}, 1000);
+    } catch(ex){
+        server = null;
+        cb();
+    }
+  } else {
+    cb();
+  }
+}
+
 describe("Producer", function(){
-  beforeEach(function(){
-      this.producer = new Producer('test');
+  beforeEach(function(done){
+    this.producer = new Producer('test');
+    if (!this.server) {
+      this.server = null;
+    }
+    closeServer(this.server, done);
   });
 
   describe("Kafka Producer", function(){
@@ -43,30 +67,36 @@ describe("Producer", function(){
         should.fail("should not get here"); 
       });
     });
-    /*
     describe("sending messages", function() {
       it("SHOULD coerce a single message into a list", function(done) { 
         var that = this;
-        var server = net.createServer(function (socket) {
-          server.on('data', function(data){
-            console.log("DATA: ", data, " | ", data.toString(), data.length);
+        this.server = net.createServer(function (socket) {
+              socket.on('data', function(data){
+            if (false)
+                   console.log("DATA: ", data, " | ", data.toString(), data.length);
+            var unpacked = binary.parse(data)
+            .word32bu('length')
+            .word16bs('error')
+            .tap( function(vars) {
+              this.buffer('body', vars.length);
+            })
+            .vars;
+            var request = ProduceRequest.fromBytes(data);
+            request.messages.length.should.equal(1);
+            request.messages[0].payload.toString().should.equal("foo");
             done();
           });
-          server.listen(8542, function() { //'listening' listener
-            console.log('server bound');
-            server.timeout(300000);
-            that.producer.port = 8542;
-            that.producer.on('error', function() {
-              console.log('straw');
-            });
-            that.producer.connect(function() {
-              console.log("connected");
-              that.producer.send(new Message('foo'));
-              console.log("post-send");
-            });
+        });
+        this.server.listen(8542, function() {
+          that.producer.port = 8542;
+          that.producer.on('error', function() {
+          });
+          that.producer.connect(function() {
+            var message = new Message('foo');
+            that.producer.send(message);
           });
         });
       });
-    }); */
+    });
   });
 });
