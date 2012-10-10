@@ -68,6 +68,35 @@ describe("Producer", function(){
       });
     });
     describe("sending messages", function() {
+      it("coerce a non-Message object into a Message object before sending", function(done) { 
+        var that = this;
+        this.server = net.createServer(function (socket) {
+              socket.on('data', function(data){
+            if (false)
+                   console.log("DATA: ", data, " | ", data.toString(), data.length);
+            var unpacked = binary.parse(data)
+            .word32bu('length')
+            .word16bs('error')
+            .tap( function(vars) {
+              this.buffer('body', vars.length);
+            })
+            .vars;
+            var request = ProduceRequest.fromBytes(data);
+            request.messages.length.should.equal(1);
+            request.messages[0].payload.toString().should.equal('this is not a message');
+            done();
+          });
+        });
+        this.server.listen(8542, function() {
+          that.producer.port = 8542;
+          that.producer.on('error', function() {
+          });
+          that.producer.connect(function() {
+            var messages = ['this is not a message'];
+            that.producer.send(messages);
+          });
+        });
+      });
       it("SHOULD coerce a single message into a list", function(done) { 
         var that = this;
         this.server = net.createServer(function (socket) {
