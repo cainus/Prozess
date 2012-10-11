@@ -97,6 +97,21 @@ describe("Producer", function(){
           });
         });
       });
+      it("yaaa if there's an error, report it in the callback", function(done) { 
+        var that = this;
+        //this.server = net.createServer(function(socket) {});
+        this.producer.connect(function() {
+          that.producer.connection.write = function(bytes, cb) {
+            should.exist(cb);
+            cb('some error');
+          };
+          var message = new Message('foo');
+          that.producer.send(message, function(err) {
+            err.toString().should.equal('some error');
+            done();
+          });
+        });
+      });
       it("SHOULD coerce a single message into a list", function(done) { 
         var that = this;
         this.server = net.createServer(function (socket) {
@@ -113,16 +128,19 @@ describe("Producer", function(){
             var request = ProduceRequest.fromBytes(data);
             request.messages.length.should.equal(1);
             request.messages[0].payload.toString().should.equal("foo");
-            done();
           });
         });
         this.server.listen(8542, function() {
           that.producer.port = 8542;
           that.producer.on('error', function() {
+            should.fail('should not get here');
           });
           that.producer.connect(function() {
             var message = new Message('foo');
-            that.producer.send(message);
+            that.producer.send(message, function(err) {
+                             should.not.exist(err);
+                             done();
+            });
           });
         });
       });
