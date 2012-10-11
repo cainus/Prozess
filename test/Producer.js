@@ -97,18 +97,21 @@ describe("Producer", function(){
           });
         });
       });
-      it("yaaa if there's an error, report it in the callback", function(done) { 
+      it("if there's an error, report it in the callback", function(done) { 
         var that = this;
-        //this.server = net.createServer(function(socket) {});
-        this.producer.connect(function() {
-          that.producer.connection.write = function(bytes, cb) {
-            should.exist(cb);
-            cb('some error');
-          };
-          var message = new Message('foo');
-          that.producer.send(message, function(err) {
-            err.toString().should.equal('some error');
-            done();
+        this.server = net.createServer(function(socket) {});
+        this.server.listen(8542, function() {
+          that.producer.port = 8542;
+          that.producer.connect(function() {
+            that.producer.connection.write = function(bytes, cb) {
+              should.exist(cb);
+              cb('some error');
+            };
+            var message = new Message('foo');
+            that.producer.send(message, function(err) {
+              err.toString().should.equal('some error');
+              done();
+            });
           });
         });
       });
