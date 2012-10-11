@@ -1,4 +1,10 @@
-var should = require('should'); _ = require('underscore'); var binary = require('binary'); var BufferMaker = require('buffermaker'); var Message = require('../index').Message; describe("Message", function(){
+var should      = require('should');
+var _           = require('underscore');
+var binary      = require('binary');
+var BufferMaker = require('buffermaker');
+var Message     = require('../index').Message;
+
+describe("Message", function(){
   beforeEach(function(){
     this.message = new Message('');
   });
