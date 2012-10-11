@@ -54,6 +54,22 @@ var should = require('should'); _ = require('underscore'); var binary = require(
 
   });
 
+  describe(".byteLength", function(){
+    var fillBufferWithValidContents = function(buffer) {
+      buffer.writeUInt32BE(8, 0);          // size
+      buffer.writeUInt8(1, 4);              // magic
+      buffer.writeUInt8(1, 5);              // compression
+      buffer.writeUInt32BE(755095536, 6);   // checksum
+      buffer.write("foo", 10);
+    };
+    it("should return the length of the Message object in bytes", function(){
+      var expectedSize = 12;
+      var bytes = new Buffer(expectedSize);
+      fillBufferWithValidContents(bytes);
+      Message.fromBytes(bytes).byteLength().should.equal(expectedSize);
+    });
+  });
+
   describe("#calculateChecksum", function(){
 
     it("should calculate the checksum (crc32 of a given message)", function(){
