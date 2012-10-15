@@ -67,86 +67,117 @@ describe("Producer", function(){
         should.fail("should not get here"); 
       });
     });
-    describe("sending messages", function() {
-      it("coerce a non-Message object into a Message object before sending", function(done) { 
+
+
+    describe("#send", function() {
+      it("should attempt a reconnect on send if disconnected", function(done) { 
         var that = this;
-        this.server = net.createServer(function (socket) {
-              socket.on('data', function(data){
-            if (false)
-                   console.log("DATA: ", data, " | ", data.toString(), data.length);
-            var unpacked = binary.parse(data)
-            .word32bu('length')
-            .word16bs('error')
-            .tap( function(vars) {
-              this.buffer('body', vars.length);
-            })
-            .vars;
-            var request = ProduceRequest.fromBytes(data);
-            request.messages.length.should.equal(1);
-            request.messages[0].payload.toString().should.equal('this is not a message');
+        var connectionCount = 0;
+        this.producer.port = 8544;
+        // fake stuff -----
+        this.producer.connect = function(cb){
+            cb();
+        };
+        this.producer.connection = {
+          write : function(data, cb){
+            if (connectionCount === 0){
+              connectionCount = connectionCount + 1;
+              cb(new Error('This socket is closed.'));
+            } else {
+              connectionCount = connectionCount + 1;
+              cb();
+            }
+          }
+        };
+        // ----
+        // real stuff...
+        this.producer.connect(function(err) {
+          that.producer.send('foo', function(err) {
+            should.not.exist(err);
+            connectionCount.should.equal(2);
             done();
           });
         });
-        this.server.listen(8542, function() {
-          that.producer.port = 8542;
-          that.producer.on('error', function() {
-          });
-          that.producer.connect(function() {
-            var messages = ['this is not a message'];
-            that.producer.send(messages);
+      });
+    it("should coerce a non-Message object into a Message object before sending", function(done) { 
+      var that = this;
+      this.server = net.createServer(function (socket) {
+            socket.on('data', function(data){
+          if (false)
+                 console.log("DATA: ", data, " | ", data.toString(), data.length);
+          var unpacked = binary.parse(data)
+          .word32bu('length')
+          .word16bs('error')
+          .tap( function(vars) {
+            this.buffer('body', vars.length);
+          })
+          .vars;
+          var request = ProduceRequest.fromBytes(data);
+          request.messages.length.should.equal(1);
+          request.messages[0].payload.toString().should.equal('this is not a message');
+          done();
+        });
+      });
+      this.server.listen(8542, function() {
+        that.producer.port = 8542;
+        that.producer.on('error', function() {
+        });
+        that.producer.connect(function() {
+          var messages = ['this is not a message'];
+          that.producer.send(messages);
+        });
+      });
+    });
+    it("if there's an error, report it in the callback", function(done) { 
+      var that = this;
+      this.server = net.createServer(function(socket) {});
+      this.server.listen(8542, function() {
+        that.producer.port = 8542;
+        that.producer.connect(function() {
+          that.producer.connection.write = function(bytes, cb) {
+            should.exist(cb);
+            cb('some error');
+          };
+          var message = new Message('foo');
+          that.producer.send(message, function(err) {
+            err.toString().should.equal('some error');
+            done();
           });
         });
       });
-      it("if there's an error, report it in the callback", function(done) { 
-        var that = this;
-        this.server = net.createServer(function(socket) {});
-        this.server.listen(8542, function() {
-          that.producer.port = 8542;
-          that.producer.connect(function() {
-            that.producer.connection.write = function(bytes, cb) {
-              should.exist(cb);
-              cb('some error');
-            };
-            var message = new Message('foo');
-            that.producer.send(message, function(err) {
-              err.toString().should.equal('some error');
-              done();
-            });
-          });
+    });
+    it("should coerce a single message into a list", function(done) { 
+      var that = this;
+      this.server = net.createServer(function (socket) {
+            socket.on('data', function(data){
+          if (false)
+                 console.log("DATA: ", data, " | ", data.toString(), data.length);
+          var unpacked = binary.parse(data)
+          .word32bu('length')
+          .word16bs('error')
+          .tap( function(vars) {
+            this.buffer('body', vars.length);
+          })
+          .vars;
+          var request = ProduceRequest.fromBytes(data);
+          request.messages.length.should.equal(1);
+          request.messages[0].payload.toString().should.equal("foo");
         });
       });
-      it("SHOULD coerce a single message into a list", function(done) { 
-        var that = this;
-        this.server = net.createServer(function (socket) {
-              socket.on('data', function(data){
-            if (false)
-                   console.log("DATA: ", data, " | ", data.toString(), data.length);
-            var unpacked = binary.parse(data)
-            .word32bu('length')
-            .word16bs('error')
-            .tap( function(vars) {
-              this.buffer('body', vars.length);
-            })
-            .vars;
-            var request = ProduceRequest.fromBytes(data);
-            request.messages.length.should.equal(1);
-            request.messages[0].payload.toString().should.equal("foo");
-          });
+      this.server.listen(8542, function() {
+        that.producer.port = 8542;
+        that.producer.on('error', function() {
+          should.fail('should not get here');
         });
-        this.server.listen(8542, function() {
-          that.producer.port = 8542;
-          that.producer.on('error', function() {
-            should.fail('should not get here');
-          });
-          that.producer.connect(function() {
-            var message = new Message('foo');
-            that.producer.send(message, function(err) {
-                             should.not.exist(err);
-                             done();
-            });
+        that.producer.connect(function() {
+          var message = new Message('foo');
+          that.producer.send(message, function(err) {
+            should.not.exist(err);
+            done();
           });
         });
       });
     });
   });
+});
 });
