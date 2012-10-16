@@ -66,7 +66,7 @@ consumer.connect(function(){
   <tr>
     <td>Kafka 0.7.0 Release</td><td>Supported</td>
   <tr>
-    <td>kafka-0.6</td><td>Partial Support</td>
+    <td>kafka-0.6</td><td>Consumer-only support.</td>
   <tr>
     <td>kafka-0.05</td><td>Not Supported</td>
 </table>
