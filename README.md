@@ -46,5 +46,29 @@ consumer.connect(function(){
 
 ```
 
-You have to be running Zookeeper and Kafka for this to work, of course.
+##Installation:
 
+     npm install prozess
+
+##Checkout the code and run the tests:
+
+     $ git clone https://github.com/cainus/Prozess.git
+     $ cd Prozess ; make test-cov && open coverage.html
+
+
+##Kafka Compatability matrix:
+
+<table>
+  <tr>
+    <td>Kafka 0.7.2 Release</td><td>Supported</td>
+  <tr>
+    <td>Kafka 0.7.1 Release</td><td>Supported</td>
+  <tr>
+    <td>Kafka 0.7.0 Release</td><td>Supported</td>
+  <tr>
+    <td>kafka-0.6</td><td>Partial Support</td>
+  <tr>
+    <td>kafka-0.05</td><td>Not Supported</td>
+</table>
+
+Versions taken from http://incubator.apache.org/kafka/downloads.html
