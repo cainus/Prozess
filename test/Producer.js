@@ -63,14 +63,32 @@ describe("Producer", function(){
         should.exist(err);
         done();
       });
-      this.producer.connect(function() { 
-        should.fail("should not get here"); 
+      this.producer.connect(function() {
+        should.fail("should not get here");
       });
     });
-
-
+    describe("#connect", function() {
+      it("zz should set keep-alive on underlying socket on connect", function(done) { 
+        /* decorate underlying Socket function to set a property */
+        var isSetKeepAliveSet = false;
+        var setKeepAlive = net.Socket.prototype.setKeepAlive;
+        net.Socket.prototype.setKeepAlive = function(setting, msecs) {
+          isSetKeepAliveSet = true;
+          setKeepAlive(setting, msecs);
+        };
+        this.server = net.createServer(function(connection) {
+        });
+        this.server.listen(9998);
+        this.producer.port = 9998;
+        this.producer.connect(function(err) {
+          done();
+        });
+        isSetKeepAliveSet.should.equal(true);
+        net.Socket.prototype.setKeepAlive = setKeepAlive;
+      });
+    });
     describe("#send", function() {
-      it("should attempt a reconnect on send if disconnected", function(done) { 
+      it("should attempt a reconnect on send if disconnected", function(done) {
         var that = this;
         var connectionCount = 0;
         this.producer.port = 8544;
