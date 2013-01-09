@@ -12,3 +12,4 @@ exports.Response = require(dir + 'Response');
 exports.FetchResponse = require(dir + 'FetchResponse');
 exports.OffsetsResponse = require(dir + 'OffsetsResponse');
 exports.OffsetsRequest = require(dir + 'OffsetsRequest');
+exports.EventEmitter = require(dir + 'EventEmitter');
