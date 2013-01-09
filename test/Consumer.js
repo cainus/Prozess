@@ -136,6 +136,20 @@ describe("Consumer", function(){
     });
   });
 
+  describe("#connect", function(){
+    describe("invalid port", function(){
+      it("calls back with a socket error", function(done){
+
+        var consumer = new Consumer({topic: "test", port : -1});
+        consumer.connect(function(err){
+          err.code.should.equal('ECONNREFUSED');
+          done();
+        });
+
+      });
+    });
+  });
+
 
   describe("#getOffsets", function(){
 
@@ -263,6 +277,7 @@ describe("Consumer", function(){
 
   });
   describe("#consume", function(){
+
 
     it ("should consume with the latest offset if no offset is provided", function(done){
        this.server = net.createServer(function(listener){
