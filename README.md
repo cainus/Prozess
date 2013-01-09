@@ -32,7 +32,8 @@ var Consumer = require('Prozess').Consumer;
 
 var options = {host : 'localhost', topic : 'social', partition : 0, offset : 0};
 var consumer = new Consumer(options);
-consumer.connect(function(){
+consumer.connect(function(err){
+  if (err) {  throw err; }
   console.log("connected!!");
   setInterval(function(){
     console.log("===================================================================");
