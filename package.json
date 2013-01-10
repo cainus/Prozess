@@ -2,7 +2,7 @@
       "name": "prozess",
       "description" : "Prozess is a kafka library for Node.js",
       "keywords" : ["kafka", "producer", "consumer"],
-      "version": "0.2.2",
+      "version": "0.2.3",
       "bugs": {
        "url": "https://github.com/cainus/Prozess/issues"
       },
@@ -19,6 +19,11 @@
           "name": "Seth Edwards",
           "email": "sethaedwards@gmail.com"
         } 
+      ],
+      "contributors": [ 
+        {
+          "name": "Christoph Tavan"
+        }
       ],
       "dependencies": {
           "underscore" : "1.3.3",
