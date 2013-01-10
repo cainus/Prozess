@@ -89,9 +89,16 @@ describe("Consumer", function(){
       should.not.exist(consumer.offset);
     });
 
-    it("creates a consumer with a passed in offset", function(){
+    it("creates a consumer with a passed in offset which is cast to bignum", function(){
       var consumer = new Consumer({offset:1111});
-      consumer.offset.should.equal(1111);
+      consumer.offset.should.be.an.instanceof(bignum);
+      consumer.offset.eq(bignum('1111')).should.equal(true);
+    });
+
+    it("creates a consumer with a passed in bignum offset", function(){
+      var consumer = new Consumer({offset:bignum('1111')});
+      consumer.offset.should.be.an.instanceof(bignum);
+      consumer.offset.eq(bignum('1111')).should.equal(true);
     });
 
     it("creates a consumer with a maximum message size", function(){
