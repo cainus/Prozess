@@ -47,6 +47,21 @@ consumer.connect(function(err){
 
 ```
 
+A `Consumer` can be constructed with the following options (default values as
+shown below):
+
+```javascript
+var options = {
+  topic: 'test',
+  partition: 0,
+  host: 'localhost',
+  port: 9092,
+  offset: null, // Number, String or BigNum
+  maxMessageSize: Consumer.MAX_MESSAGE_SIZE,
+  polling: Consumer.DEFAULT_POLLING_INTERVAL
+};
+```
+
 ##Installation:
 
      npm install prozess
