@@ -15,14 +15,26 @@ There are two low-level clients: The Producer and the Consumer:
 var Producer = require('Prozess').Producer;
 
 var producer = new Producer('social', {host : 'localhost'});
-producer.connect(function(err){
-  if (err) {  throw err; }
-  console.log("producing for ", producer.topic);
-  setInterval(function(){
-    var message = { "thisisa" :  "test " + new Date()};
-    producer.send(JSON.stringify(message));
-  }, 1000);
+producer.connect();
+console.log("producing for ", producer.topic);
+producer.on('error', function(err){
+  console.log("some general error occurred: ", err);  
 });
+producer.on('brokerReconnectError', function(err){
+  console.log("could not reconnect: ", err);  
+  console.log("will retry on next send()");  
+});
+
+setInterval(function(){
+  var message = { "thisisa" :  "test " + new Date()};
+  producer.send(JSON.stringify(message), function(err){
+    if (err){
+      console.log("send error: ", err);
+    } else {
+      console.log("message sent");
+    }
+  });
+}, 1000);
 ```
 
 ##Consumer example:
