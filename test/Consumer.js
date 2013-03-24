@@ -8,6 +8,7 @@ var FetchResponse = require('../index').FetchResponse;
 var OffsetsResponse = require('../index').OffsetsResponse;
 var BufferMaker = require('buffermaker');
 var binary = require('binary');
+var sinon = require('sinon');
 
 function bufferFromString(str){
     var bytes = str.split(" ");
@@ -36,8 +37,6 @@ function closeServer(server, cb){
   }
 }
 
-
-
 describe("Consumer", function(){
   beforeEach(function(done){
     if (!this.server){  this.server = null; }
@@ -48,7 +47,6 @@ describe("Consumer", function(){
   //});
 
   describe("#ctor", function(){
-
     it("creates a consumer with a default topic", function(){
       var consumer = new Consumer();
       consumer.topic.should.equal('test');
@@ -108,10 +106,7 @@ describe("Consumer", function(){
 
   });
 
-
-
   describe("#sendConsumeRequest", function(){
-
     it("should send a consumer request", function(done){
       this.timeout(60000);
       var consumer = new Consumer({ port : 9092});
@@ -122,9 +117,7 @@ describe("Consumer", function(){
           var fetchResponse = new FetchResponse(0, [new Message("ale"), new Message("foobar")]);
           listener.write(fetchResponse.toBytes());
         });
-
       });
-
       var server = this.server;
       this.server.listen(9092, function(){
         consumer.connect(function(err){
@@ -143,7 +136,39 @@ describe("Consumer", function(){
     });
   });
 
-  describe("#connect", function(){
+  describe("#connect", function(done){
+    describe("received message is larger than maximum predefined message size", function(){
+      afterEach(function() {
+        if (net.createConnection.restore) {
+          net.createConnection.restore();
+        }
+      });
+      it("throws an error", function(done) {
+        var socket = {
+          on : function(event, handler) {
+            if (event === 'data') {
+              handler(new Buffer(new Consumer().MAX_MESSAGE_SIZE + 1));
+            }
+          }
+        };
+        var createConnection = sinon.stub(net, 'createConnection', function(options, connectionListener) {
+          /* simulate async call */
+          setTimeout(function() { connectionListener(); }, 10);
+          return socket;
+        });
+        var consumer = new Consumer({topic: "test", port : -1, offset : 1});
+        consumer._setRequestMode("fetch");
+        consumer.onFetch(function(err) {
+          should.exist(err, 'we should emit an error for oversized messages');
+          err.message.should.equal('Max message was exceeded. Possible causes: bad offset, corrupt log, message larger than max message size (1048576)');
+          createConnection.restore();
+          done();
+        });
+        consumer.connect(function(err) {
+          should.not.exist(err, 'should not throw an error here');
+        });
+      });
+    });
     describe("invalid port", function(){
       it("calls back with a socket error", function(done){
 
