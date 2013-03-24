@@ -2,6 +2,7 @@ Prozess
 =======
 [![Build
 Status](https://secure.travis-ci.org/cainus/Prozess.png?branch=master)](http://travis-ci.org/cainus/Prozess)
+[![Coverage Status](https://coveralls.io/repos/cainus/Prozess/badge.png?branch=master)](https://coveralls.io/r/cainus/Prozess)
 
 Prozess is a Kafka library for node.js
 
