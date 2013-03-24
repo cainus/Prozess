@@ -7,7 +7,7 @@
        "url": "https://github.com/cainus/Prozess/issues"
       },
       "scripts" : {
-        "test" : "make test"
+        "test" : "make test-coveralls"
       },
       "maintainers": [
         {
@@ -15,6 +15,10 @@
           "email": "gregg@caines.ca",
           "web": "http://caines.ca"
         },
+        {
+          "name": "Eric Lee",
+          "email": "thenorthsecedes@gmail.com"
+        } ,
         {
           "name": "Seth Edwards",
           "email": "sethaedwards@gmail.com"
@@ -33,6 +37,8 @@
           "bignum" : "0.5.4"
       },
       "devDependencies" : {
+          "jscoverage" : "0.3.6",
+					"coveralls": "1.1.2",
           "mockery" : "1.1.2",
           "hottap" : "1.0.1",
           "mocha" : "1.3.0",
