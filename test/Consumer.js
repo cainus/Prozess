@@ -1,10 +1,3 @@
-var oldLength = String.prototype.length;
-String.prototype.length = function(){
-  console.log("called");
-  console.trace('length called!');
-  return oldLength();
-};
-
 var should = require('should');
 var net = require('net');
 var bignum = require('bignum');

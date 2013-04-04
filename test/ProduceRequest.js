@@ -26,7 +26,7 @@ describe("ProduceRequest", function(){
       bytes.length.should.equal(20);
       bytes.should.eql(fullRequest);
     });
-/*
+
     it("should binary encode a request with an ümlaut in the topic", function() {
       var fullRequest = new BufferMaker()
       .UInt8(0)
@@ -44,8 +44,7 @@ describe("ProduceRequest", function(){
       var bytes = request.toBytes();
       bytes.length.should.equal(21);
       bytes.should.eql(fullRequest);
-    }); 
-*/
+    });
 
   });
 
