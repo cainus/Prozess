@@ -132,7 +132,7 @@ describe("Message", function(){
 
       var message = new Message("ümlaut");
       var fullMessage = new BufferMaker()
-      .UInt32BE(12)
+      .UInt32BE(13)
       .UInt8(message.magic)
       .UInt8(message.compression)
       .UInt32BE(message.calculateChecksum())
