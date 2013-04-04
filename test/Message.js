@@ -138,7 +138,8 @@ describe("Message", function(){
       .UInt32BE(message.calculateChecksum())
       .string(message.payload)
       .make();
-      message.toBytes().should.eql(fullMessage);
+      var bytes = message.toBytes();
+      bytes.should.eql(fullMessage);
     });
   });
 

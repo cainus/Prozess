@@ -25,7 +25,27 @@ describe("ProduceRequest", function(){
       var bytes = request.toBytes();
       bytes.length.should.equal(20);
       bytes.should.eql(fullRequest);
+    });
+/*
+    it("should binary encode a request with an ümlaut in the topic", function() {
+      var fullRequest = new BufferMaker()
+      .UInt8(0)
+      .UInt8(0)
+      .UInt8(0)
+      .UInt8(17)
+      .UInt8(0)
+      .UInt8(0)
+      .UInt8(0)
+      .UInt8(5)
+      .string('tesü')
+      .Int64BE(0)
+      .make();
+      var request = new ProduceRequest('tesü', 0, []);
+      var bytes = request.toBytes();
+      bytes.length.should.equal(21);
+      bytes.should.eql(fullRequest);
     }); 
+*/
 
   });
 
@@ -33,13 +53,7 @@ describe("ProduceRequest", function(){
   it("should binary encode a request with a message, using a specific wire format", function(){
     var message = new Message("ale");
 
-    var encodedRequest;
-    try {
-      encodedRequest = new ProduceRequest('test', 0, [message]).toBytes();
-    } catch (ex){
-      console.log("EX!: ", ex);
-    }
-
+    var encodedRequest = new ProduceRequest('test', 0, [message]).toBytes();
 
     var unpacked = binary.parse(encodedRequest)
     .word32bu('dataSize')
@@ -52,7 +66,6 @@ describe("ProduceRequest", function(){
       this.buffer('messages', vars.messagesLength);
     })
     .vars;
-
 
     encodedRequest.length.should.equal(33);
     unpacked.dataSize.should.eql(29);
