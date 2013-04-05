@@ -84,6 +84,10 @@ describe("Message", function(){
       this.message.payload = "alejandro";
       this.message.calculateChecksum().should.equal(2865078607);
     });
+    it("should calculate the checksum even with ümlauts", function(){
+      this.message.payload = "ümlaut";
+      this.message.calculateChecksum().should.equal(1375136672);
+    });
 
   });
 
