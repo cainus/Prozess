@@ -52,7 +52,7 @@ describe("Consumer", function(){
       consumer.topic.should.equal('test');
     });
 
-    it("creates a consumer withi a default partition", function(){
+    it("creates a consumer with a default partition", function(){
       var consumer = new Consumer();
       consumer.partition.should.equal(0);
     });
@@ -100,8 +100,9 @@ describe("Consumer", function(){
     });
 
     it("creates a consumer with a maximum message size", function(){
-      var consumer = new Consumer();
-      consumer.maxMessageSize.should.equal(1048576);
+      var maxMsgSize = 1234567;
+      var consumer = new Consumer({ maxMessageSize: maxMsgSize });
+      consumer.maxMessageSize.should.equal(maxMsgSize);
     });
 
   });
@@ -138,6 +139,8 @@ describe("Consumer", function(){
 
   describe("#connect", function(done){
     describe("received message is larger than maximum predefined message size", function(){
+      var maxMsgSize = new Consumer().MAX_MESSAGE_SIZE;
+
       afterEach(function() {
         if (net.createConnection.restore) {
           net.createConnection.restore();
@@ -147,7 +150,7 @@ describe("Consumer", function(){
         var socket = {
           on : function(event, handler) {
             if (event === 'data') {
-              handler(new Buffer(new Consumer().MAX_MESSAGE_SIZE + 1));
+              handler(new Buffer(maxMsgSize + 1));
             }
           }
         };
@@ -160,7 +163,11 @@ describe("Consumer", function(){
         consumer._setRequestMode("fetch");
         consumer.onFetch(function(err) {
           should.exist(err, 'we should emit an error for oversized messages');
-          err.message.should.equal('Max message was exceeded. Possible causes: bad offset, corrupt log, message larger than max message size (1048576)');
+          err.message.should.equal('Max message was exceeded ('
+            + (maxMsgSize + 1)
+            + '). Possible causes: bad offset, corrupt log, message larger than max message size ('
+            + maxMsgSize + ')'
+          );
           createConnection.restore();
           done();
         });
