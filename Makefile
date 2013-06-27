@@ -1,5 +1,5 @@
 REPORTER = dot
-test:
+test: npm-install
 	@NODE_ENV=test ./node_modules/.bin/mocha -b --reporter $(REPORTER)
 
 lib-cov:
@@ -13,5 +13,8 @@ test-coveralls:	lib-cov
 	echo TRAVIS_JOB_ID $(TRAVIS_JOB_ID)
 	@PROZESS_COVERAGE=1 $(MAKE) test REPORTER=json-cov 2> /dev/null | ./node_modules/coveralls/bin/coveralls.js
 	rm -rf lib-cov
+
+npm-install:
+	npm install
 
 .PHONY: test 
