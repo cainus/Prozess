@@ -89,6 +89,9 @@ var options = {
 
 <table>
   <tr>
+     <td>Kakfa 0.8.0 Release</td><td>Not Supported</td>
+  </tr>
+  <tr>
     <td>Kafka 0.7.2 Release</td><td>Supported</td>
   <tr>
     <td>Kafka 0.7.1 Release</td><td>Supported</td>
