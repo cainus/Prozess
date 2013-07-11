@@ -9,6 +9,7 @@ var OffsetsResponse = require('../index').OffsetsResponse;
 var BufferMaker = require('buffermaker');
 var binary = require('binary');
 var sinon = require('sinon');
+var HEADER_SIZE = 8;
 
 function bufferFromString(str){
     var bytes = str.split(" ");
@@ -150,7 +151,7 @@ describe("Consumer", function(){
         var socket = {
           on : function(event, handler) {
             if (event === 'data') {
-              handler(new Buffer(maxMsgSize + 1));
+              handler(new Buffer(maxMsgSize + HEADER_SIZE + 1));
             }
           }
         };
@@ -163,10 +164,10 @@ describe("Consumer", function(){
         consumer._setRequestMode("fetch");
         consumer.onFetch(function(err) {
           should.exist(err, 'we should emit an error for oversized messages');
-          err.message.should.equal('Max message was exceeded ('
-            + (maxMsgSize + 1)
-            + '). Possible causes: bad offset, corrupt log, message larger than max message size ('
-            + maxMsgSize + ')'
+          err.message.should.equal(
+            'Max message size is ' + maxMsgSize + ' bytes, was exceeded by buffer of size ' +
+            (maxMsgSize + HEADER_SIZE + 1) +
+            ' Possible causes: bad offset (current offset: ' + 1 + '), corrupt log, message larger than max message size.'
           );
           createConnection.restore();
           done();
@@ -286,7 +287,8 @@ describe("Consumer", function(){
         should.not.exist(err);
         response.messages[0].payload.should.eql(new Buffer("hello"));
         response.messages[1].payload.should.eql(new Buffer("there"));
-        consumer.responseBuffer.should.eql(new Buffer([0,1,2,3]));
+        var emptyBuffer = new Buffer([]);
+        consumer.responseBuffer.should.eql(emptyBuffer);
         should.not.exist(consumer.requestMode);
         consumer.offset.eq(bignum(123 + 
                                   messages[0].toBytes().length +
@@ -370,11 +372,7 @@ describe("Consumer", function(){
            });
          });
        });
-
-
       });
   });
-
-
 });
 

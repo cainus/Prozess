@@ -1,6 +1,6 @@
 REPORTER = dot
 test: npm-install
-	@NODE_ENV=test ./node_modules/.bin/mocha -b --reporter $(REPORTER)
+	@NODE_ENV=test ./node_modules/.bin/mocha --reporter $(REPORTER)
 
 lib-cov:
 	jscoverage lib lib-cov

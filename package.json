@@ -2,7 +2,7 @@
       "name": "prozess",
       "description" : "Prozess is a kafka library for Node.js",
       "keywords" : ["kafka", "producer", "consumer"],
-      "version": "0.3.7",
+      "version": "0.4.0",
       "bugs": {
        "url": "https://github.com/cainus/Prozess/issues"
       },
@@ -17,14 +17,15 @@
         },
         {
           "name": "Eric Lee",
-          "email": "thenorthsecedes@gmail.com"
+          "email": "thenorthsecedes@gmail.com",
+          "web":"http://mcdonaldsprogrammingmetaphors.wordpress.com/"
         },
         {
           "name": "Seth Edwards",
           "email": "sethaedwards@gmail.com"
         }
       ],
-      "contributors": [ 
+      "contributors": [
         {
           "name": "Christoph Tavan"
         },
