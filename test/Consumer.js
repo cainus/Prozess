@@ -218,10 +218,8 @@ describe("Consumer", function(){
 
      var consumer = new Consumer();
      consumer.connect(function(err){
-       consumer.getOffsets(function(err, offsetsResponse){
+       consumer.getOffsets(function(err, offsets){
          if (err) { throw err; }
-         if (offsetsResponse.error) { throw offsetsResponse.error; }
-         var offsets = offsetsResponse.offsets;
          offsets.length.should.equal(2);
          offsets[1].eq(23).should.equal(true);
          done();
@@ -261,9 +259,8 @@ describe("Consumer", function(){
 
      var consumer = new Consumer();
      consumer.connect(function(err){
-       consumer.getOffsets(function(err, offsetsResponse){
+       consumer.getOffsets(function(err, offsets){
          if (err) { throw err; }
-         var offsets = offsetsResponse.offsets;
          offsets.length.should.equal(2);
          offsets[1].eq(23).should.equal(true);
          done();
@@ -306,9 +303,8 @@ describe("Consumer", function(){
       var randomBytes = new Buffer([0,1,2,3]);
       var res = new OffsetsResponse(0, [456]).toBytes();
       consumer.responseBuffer = Buffer.concat([res, randomBytes]);
-      consumer.handleOffsetsData(function(err, response){
-        response.error.should.equal(0);
-        response.offsets[0].eq(bignum(456)).should.equal(true);
+      consumer.handleOffsetsData(function(err, offsets){
+        offsets[0].eq(bignum(456)).should.equal(true);
         should.not.exist(err);
         consumer.responseBuffer.should.eql(new Buffer([0,1,2,3]));
         should.not.exist(consumer.requestMode);
@@ -318,8 +314,6 @@ describe("Consumer", function(){
 
   });
   describe("#consume", function(){
-
-
     it ("should consume with the latest offset if no offset is provided", function(done){
        this.server = net.createServer(function(listener){
          var requestBuffer = new Buffer([]);
