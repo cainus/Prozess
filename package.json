@@ -1,53 +1,53 @@
 {
-      "name": "prozess",
-      "description" : "Prozess is a kafka library for Node.js",
-      "keywords" : ["kafka", "producer", "consumer"],
-      "version": "0.6.0",
-      "bugs": {
-       "url": "https://github.com/cainus/Prozess/issues"
-      },
-      "scripts" : {
-        "test" : "make test-coveralls"
-      },
-      "maintainers": [
-        {
-          "name": "Gregg Caines",
-          "email": "gregg@caines.ca",
-          "web": "http://caines.ca"
-        },
-        {
-          "name": "Eric Lee",
-          "email": "thenorthsecedes@gmail.com",
-          "web":"http://mcdonaldsprogrammingmetaphors.wordpress.com/"
-        },
-        {
-          "name": "Seth Edwards",
-          "email": "sethaedwards@gmail.com"
-        }
-      ],
-      "contributors": [
-        {
-          "name": "Christoph Tavan"
-        },
-        {
-          "name": "Devon Crouse"
-        }
-      ],
-      "dependencies": {
-          "underscore" : "1.3.3",
-          "buffermaker" : "0.0.10",
-          "binary" : "0.3.0",
-          "crc32" : "0.2.2",
-          "buffer-crc32" : "0.2.1",
-          "bignum" : "0.6.0"
-      },
-      "devDependencies" : {
-          "jscoverage" : "0.3.6",
-          "coveralls": "1.1.2",
-          "mockery" : "1.1.2",
-          "hottap" : "1.0.1",
-          "mocha" : "1.3.0",
-          "should" : "1.1.0",
-          "sinon" : "1.5.2"
-      }
+  "name": "prozess",
+  "description": "Prozess is a kafka library for Node.js",
+  "keywords": [
+    "kafka",
+    "producer",
+    "consumer"
+  ],
+  "version": "0.6.1",
+  "bugs": {
+    "url": "https://github.com/cainus/Prozess/issues"
+  },
+  "scripts": {
+    "test": "make test-coveralls"
+  },
+  "maintainers": [
+    "Gregg Caines <gregg@caines.ca> (http://caines.ca)",
+    "Eric Lee <thenorthsecedes@gmail.com> (http://mcdonaldsprogrammingmetaphors.wordpress.com/)",
+    "Seth Edwards <sethaedwards@gmail.com>"
+  ],
+  "contributors": [
+    "Christoph Tavan",
+    "Devon Crouse",
+    "Mithun Satheesh <mithunsatish@gmail.com> (http://www.linkedin.com/pub/mithun-satheesh/28/89b/a56)"
+  ],
+  "dependencies": {
+    "underscore": "1.3.3",
+    "buffermaker": "0.0.10",
+    "binary": "0.3.0",
+    "crc32": "0.2.2",
+    "buffer-crc32": "0.2.1",
+    "bignum": "0.6.0"
+  },
+  "devDependencies": {
+    "jscoverage": "0.3.6",
+    "coveralls": "1.1.2",
+    "mockery": "1.1.2",
+    "hottap": "1.0.1",
+    "mocha": "1.3.0",
+    "should": "1.1.0",
+    "sinon": "1.5.2"
+  },
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/cainus/Prozess.git"
+  },
+  "author": "",
+  "license": "BSD"
 }
