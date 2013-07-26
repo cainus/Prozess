@@ -1,7 +1,6 @@
 var Consumer = require('./lib/Consumer');
 
-var options = {host : 'xtnvkafka01.xt.local', topic : 'social', partition : 0};
-options = {host : 'localhost', topic : 'social', partition : 0, offset : 0};
+var options = {host : 'localhost', topic : 'social', partition : 0, offset : 0};
 var consumer = new Consumer(options);
 consumer.connect(function(err){
   if (err){
