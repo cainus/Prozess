@@ -10,6 +10,9 @@ console.log("producing for ", producer.topic);
 setInterval(function(){
 console.log("sending...");
   producer.send('{"thisisa" : "test' + new Date() + '"}', function(err){
-    console.log("send error: ", err);
+    
+    if(typeof(err) != "undefined")
+      console.log("send error: ", err);
+  
   });
 }, 1000);
