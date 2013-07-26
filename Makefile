@@ -10,6 +10,7 @@ test-cov:	lib-cov
 	rm -rf lib-cov
 
 test-coveralls:	lib-cov
+	$(MAKE) test REPORTER=spec
 	echo TRAVIS_JOB_ID $(TRAVIS_JOB_ID)
 	@PROZESS_COVERAGE=1 $(MAKE) test REPORTER=json-cov 2> /dev/null | ./node_modules/coveralls/bin/coveralls.js
 	rm -rf lib-cov
