@@ -163,6 +163,15 @@ describe("Message", function(){
       message.isValid().should.equal(true);
     });
 
+    it ("throws an exception if it can't get size", function(){
+      try {
+        var message = Message.fromBytes(new Buffer([0,1]));
+        should.fail("expected exception was not thrown!");
+      } catch (ex){
+         ex.should.equal("incomplete message");
+      }
+    });
+
     it("should parse a message when magic is 1  (kafka >= 0.7)", function(){
       var bytes = new BufferMaker()
       .UInt32BE(9) //size

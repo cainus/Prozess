@@ -274,7 +274,7 @@ describe("Consumer", function(){
   describe("#handleFetchData", function(){
     it ("should return a fetchResponse object when possible", function(done){
       var consumer = new Consumer({topic : "test"});
-      consumer.setOffset(123);
+      consumer.setOffset(12);
       consumer._setRequestMode('offsets');
       var randomBytes = new Buffer([0,1,2,3]);
       var messages = [new Message("hello"), new Message("there")];
@@ -287,11 +287,38 @@ describe("Consumer", function(){
         var emptyBuffer = new Buffer([]);
         consumer.responseBuffer.should.eql(emptyBuffer);
         should.not.exist(consumer.requestMode);
-        consumer.offset.eq(bignum(123 + 
+        consumer.offset.eq(bignum(12 + 
                                   messages[0].toBytes().length +
                                   messages[1].toBytes().length )).should.equal(true);
         done();
       });
+    });
+
+  });
+  describe("#setOffset", function(){
+    it ("can set bignum values as the offset", function(){
+      var consumer = new Consumer({topic : "test"});
+      consumer.setOffset(bignum(12));
+      consumer.offset.eq(bignum(12)).should.equal(true);
+    });
+    it ("can set non-bignum values as the offset", function(){
+      var consumer = new Consumer({topic : "test"});
+      consumer.setOffset(12);
+      consumer.offset.eq(bignum(12)).should.equal(true);
+    });
+  });
+  describe("#incrementOffset", function(){
+    it ("adds integer values to the offset", function(){
+      var consumer = new Consumer({topic : "test"});
+      consumer.setOffset(12);
+      consumer.incrementOffset(14);
+      consumer.offset.eq(bignum(26)).should.equal(true);
+    });
+    it ("adds bignum values to the offset", function(){
+      var consumer = new Consumer({topic : "test"});
+      consumer.setOffset(12);
+      consumer.incrementOffset(bignum(14));
+      consumer.offset.eq(bignum(26)).should.equal(true);
     });
 
   });
