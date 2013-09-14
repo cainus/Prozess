@@ -7,6 +7,7 @@ var binary = require('binary');
 var net = require('net');
 var EventEmitter = require('events').EventEmitter;
 var sinon = require('../lib/sinonPatch');
+var Partitioner = require('../lib/Partitioner');
 
 function closeServer(server, cb){
   if (!!server){
@@ -42,8 +43,8 @@ describe("Producer", function(){
       this.producer.topic.should.equal('test');
     }); 
 
-    it("should have a default partition", function(){
-      this.producer.partition.should.equal(0);
+    it("should have a default partitioner", function(){
+      this.producer.partitioner.should.be.a('object');
     });
 
     it("should have a default host", function(){
