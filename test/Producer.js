@@ -212,6 +212,43 @@ describe("Producer", function(){
         that.producer.connect();
       });
     });
+    it("should allow an options parameter to specify topic and partition", function(done) { 
+      var that = this;
+      this.server = net.createServer(function (socket) {
+            socket.on('data', function(data){
+          var unpacked = binary.parse(data)
+          .word32bu('length')
+          .word16bs('error')
+          .tap( function(vars) {
+            this.buffer('body', vars.length);
+          })
+          .vars;
+          var request = ProduceRequest.fromBytes(data);
+          request.messages.length.should.equal(1);
+          request.messages[0].payload.toString().should.equal("foo");
+          request.topic.should.equal("newtopic");
+          request.partition.should.equal(1337);
+        });
+      });
+      this.server.listen(8542, function() {
+        that.producer.port = 8542;
+        that.producer.on('error', function(err) {
+          should.fail('should not get here');
+        });
+        that.producer.on('connect', function(){
+          var message = new Message('foo');
+          var options = {
+            topic : "newtopic",
+            partition : 1337
+          };
+          that.producer.send(message, options, function(err) {
+            should.not.exist(err);
+            done();
+          });
+        });
+        that.producer.connect();
+      });
+    });
     it("handle non-ascii utf-8", function(done) { 
       var that = this;
       var testString = "fo\u00a0o";
