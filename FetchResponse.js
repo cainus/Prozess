@@ -48,7 +48,7 @@ var FetchResponse = function(error, messages){
   this.messages = messages;  // an array of message objects
   this.length = 2;
   _.each(this.messages, function(msg){
-    that.length = msg.toBytes().length;
+    that.length = msg.payload.length+10;
   });
   this.bytesLengthVal = null;
 };
@@ -84,7 +84,7 @@ FetchResponse.fromBytes = function(bytes){
   } else {
     messages = parseMessages(response.body);
   }
-  this.bytesLengthVal = response.toBytes().length;
+  this.bytesLengthVal = response.body.length+6;
 
   return new FetchResponse(response.error, messages);
 };
@@ -97,7 +97,7 @@ var parseMessages = function(body){
   while(body.length > 0){
     try {
       var message = Message.fromBytes(body);
-      body = body.slice(message.toBytes().length);
+      body = body.slice(message.payload.length+10);
       messages.push(message);
     } catch(ex){
       break;

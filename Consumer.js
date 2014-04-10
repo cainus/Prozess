@@ -49,6 +49,9 @@ Consumer.prototype.connect = function(cb){
   this.socket = net.createConnection({port : this.port, host : this.host}, function(){
     cb();
   });
+  this.responseBuffers = [];
+  this.responseLength = 0;
+  this.responseBuffersLength = 0;
 
   this.socket.on('end', function(){
   });
@@ -70,16 +73,24 @@ Consumer.prototype.connect = function(cb){
         '), corrupt log, message larger than max message size.';
       return handler(new Error(errorMessage));
     }
-    that.responseBuffer = Buffer.concat([that.responseBuffer, data]); 
-    switch(that.requestMode){
-      case "fetch":
-        that.handleFetchData(that.fetchResponder);
-        break;
-      case "offsets":
-        that.handleOffsetsData(that.offsetsResponder);
-        break;
-      default:
-        throw "Got a response when no response was expected!";
+    that.responseBuffers.push(data);
+    that.responseBuffersLength += data.length;
+    if (!that.responseLength) that.responseLength = data.readUInt32BE(0);
+    if (that.responseBuffersLength >= that.responseLength) {
+        that.responseBuffer = Buffer.concat(that.responseBuffers);
+        that.responseBuffers = [];
+        that.responseLength = 0;
+        that.responseBuffersLength = 0;
+        switch(that.requestMode){
+          case "fetch":
+            that.handleFetchData(that.fetchResponder);
+            break;
+          case "offsets":
+            that.handleOffsetsData(that.offsetsResponder);
+            break;
+          default:
+            throw "Got a response when no response was expected!";
+        }
     }
   });
 };
@@ -104,9 +115,9 @@ Consumer.prototype.handleFetchData = function(cb){
   }
   var messages = response.messages;
   var messageLength = 0;
-  _.each(messages, function(message){
-    messageLength += message.toBytes().length;
-  });
+  for (var i = 0; i < messages.length; i++) {
+    messageLength += messages[i].payload.length+10;
+  }
   this.incrementOffset(messageLength);
   this._unsetRequestMode();
   return cb(null, response);
