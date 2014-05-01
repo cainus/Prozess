@@ -29,7 +29,8 @@
     "binary": "0.3.0",
     "crc32": "0.2.2",
     "buffer-crc32": "0.2.1",
-    "bignum": "0.6.2"
+    "bignum": "0.6.2",
+    "readable-stream": "1.0.x"
   },
   "devDependencies": {
     "jscoverage": "0.3.6",
