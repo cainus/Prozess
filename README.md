@@ -75,6 +75,87 @@ var options = {
 };
 ```
 
+##Documentation
+
+### `var producer = new Producer(options)`
+
+```ocaml
+type Message := String | Buffer
+
+Producer := ({
+  topic: String,
+  partition?: Number,
+  host?: String,
+  port?: Number,
+  connectionCache?: Boolean
+}) => EventEmitter & {
+  connect: () => void,
+  send: (Array<Message> | Message, opts?: {
+    partition?: Number,
+    topic?: String
+  }, cb: Callback<>) => void
+}
+```
+
+To create a `producer` you must call `Producer()` with various
+  options. The only required argument is the topic your
+  producing to.
+  
+```js
+var Producer = require('prozess').Producer
+
+var producer = new Producer({ topic: 'foos' })
+```
+
+#### `options.topic`
+
+`options.topic` must be a `String` and is the topic
+  in kafka that you will producer to
+  
+#### `options.partition`
+
+`options.partition` is an optional `Number` and 
+  defaults to `0`. You can specify this if you want
+  to change which `partition` you publish to.
+  
+#### `options.host` and `options.port`
+
+`options.host` determines the host location of the
+  kafka node you are connectiont to and `options.port`
+  determines the port.
+  
+These default to `"localhost"` and `9092` which are 
+  the default kafka ports.
+  
+#### `options.connectionCache`
+
+`options.connectionCache` is a `Boolean` you can set
+  to opt in into connection caching. By default `prozess`
+  will create one TCP connection per topic.
+  
+If you set `options.connectionCache` to true then 
+  `prozess` will use one TCP connection per host & port.
+  
+#### `producer.connect(Callback)`
+
+You can call `producer.connect(cb)` to open your connection
+  to kafka, the `cb` you pass in will be called once the
+  connection is open.
+  
+You must call `.connect()` before calling `.send()`
+
+#### `producer.send(Message, opts?: Object, Callback)`
+
+To produce messages to kafka you should call `.send()` with
+  either an array of `String`'s or a single `String`.
+  
+You can pass `.send()` an optional options argument to 
+  customize the `topic` & `partition` for this single `send()`
+  request.
+  
+You must also supply a `Callback` to handle any asynchronous
+  errors.
+
 ##Installation:
 
      npm install prozess
