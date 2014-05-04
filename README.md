@@ -121,7 +121,7 @@ var producer = new Producer({ topic: 'foos' })
 #### `options.host` and `options.port`
 
 `options.host` determines the host location of the
-  kafka node you are connectiont to and `options.port`
+  kafka node you are connecting to and `options.port`
   determines the port.
   
 These default to `"localhost"` and `9092` which are 
