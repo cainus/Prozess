@@ -8,7 +8,7 @@ var BufferMaker = require('buffermaker');
 var binary = require('binary');
 var net = require('net');
 var EventEmitter = require('events').EventEmitter;
-var sinon = require('../lib/sinonPatch');
+var sinon = require('./lib/sinonPatch');
 
 function closeServer(server, cb){
   var called = false;

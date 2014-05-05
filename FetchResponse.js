@@ -1,7 +1,7 @@
 var binary = require('binary');
 var BufferMaker = require('buffermaker');
-var Message = require('../lib/Message');
-var Response = require('../lib/Response');
+var Message = require('./Message');
+var Response = require('./Response');
 var _ = require('underscore');
 
 /*  HEADER

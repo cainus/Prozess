@@ -1,14 +1,10 @@
-var dir = './lib/';
-if (process.env.PROZESS_COVERAGE){
-  var dir = './lib-cov/';
-}
-exports.Producer = require(dir + 'Producer');
-exports.Consumer = require(dir + 'Consumer');
-exports.Message = require(dir + 'Message');
-exports.FetchRequest = require(dir + 'FetchRequest');
-exports.ProduceRequest = require(dir + 'ProduceRequest');
-exports.Request = require(dir + 'Request');
-exports.Response = require(dir + 'Response');
-exports.FetchResponse = require(dir + 'FetchResponse');
-exports.OffsetsResponse = require(dir + 'OffsetsResponse');
-exports.OffsetsRequest = require(dir + 'OffsetsRequest');
+exports.Producer = require('./Producer');
+exports.Consumer = require('./Consumer');
+exports.Message = require('./Message');
+exports.FetchRequest = require('./FetchRequest');
+exports.ProduceRequest = require('./ProduceRequest');
+exports.Request = require('./Request');
+exports.Response = require('./Response');
+exports.FetchResponse = require('./FetchResponse');
+exports.OffsetsResponse = require('./OffsetsResponse');
+exports.OffsetsRequest = require('./OffsetsRequest');

@@ -6,7 +6,7 @@
     "producer",
     "consumer"
   ],
-  "version": "0.6.4",
+  "version": "0.7.0",
   "bugs": {
     "url": "https://github.com/cainus/Prozess/issues"
   },
@@ -30,7 +30,11 @@
     "crc32": "0.2.2",
     "buffer-crc32": "0.2.1",
     "bignum": "0.6.2",
-    "readable-stream": "1.0.26"
+    "readable-stream": "1.0.26",
+    "istanbul": "^0.2.8",
+    "mocha": "^1.18.2",
+    "jshint": "^2.5.0",
+    "coveralls": "^2.10.0"
   },
   "devDependencies": {
     "jscoverage": "0.3.6",
@@ -52,6 +56,7 @@
   "engines": {
     "node": ">=0.8.0"
   },
-  "author": "",
-  "license": "BSD"
+  "author": "Gregg Caines",
+  "license": "BSD",
+  "homepage": "https://github.com/cainus/Prozess"
 }

@@ -1,6 +1,6 @@
 var binary = require('binary');
 var BufferMaker = require('buffermaker');
-var Message = require('../lib/Message');
+var Message = require('./Message');
 var _ = require('underscore');
 var assert = require('assert');
 

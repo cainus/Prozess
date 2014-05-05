@@ -1,4 +1,4 @@
-var Consumer = require('./lib/Consumer');
+var Consumer = require('./Consumer');
 
 var options = {host : 'localhost', topic : 'social', partition : 0, offset : 0};
 var consumer = new Consumer(options);

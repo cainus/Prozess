@@ -1,7 +1,7 @@
-var Producer = require('./lib/Producer');
+var Producer = require('./Producer');
 
 var producer = new Producer('social', {host : 'localhost'});
-producer.connect()
+producer.connect();
 producer.on('error', function(err){
   console.log("error: ", err);
 });

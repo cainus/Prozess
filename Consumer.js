@@ -7,7 +7,7 @@ var OffsetsResponse = require('./OffsetsResponse');
 var FetchRequest = require('./FetchRequest');
 var OffsetsRequest = require('./OffsetsRequest');
 var FetchResponse = require('./FetchResponse');
-var Response = require('../lib/Response');
+var Response = require('./Response');
 
 var Consumer = function(options){
   this.MAX_MESSAGE_SIZE = 1024 * 1024; // 1 megabyte
