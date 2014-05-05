@@ -30,13 +30,13 @@
     "crc32": "0.2.2",
     "buffer-crc32": "0.2.1",
     "bignum": "0.6.2",
-    "readable-stream": "1.0.26",
-    "istanbul": "^0.2.8",
-    "mocha": "^1.18.2",
-    "jshint": "^2.5.0",
-    "coveralls": "^2.10.0"
+    "readable-stream": "1.0.26"
   },
   "devDependencies": {
+    "istanbul": "0.2.8",
+    "mocha": "1.18.2",
+    "jshint": "2.5.0",
+    "coveralls": "2.10.0",
     "jscoverage": "0.3.6",
     "coveralls": "1.1.2",
     "mockery": "1.1.2",
