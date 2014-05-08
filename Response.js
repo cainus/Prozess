@@ -3,6 +3,7 @@ var BufferMaker = require('buffermaker');
 var Message = require('./Message');
 var _ = require('underscore');
 var assert = require('assert');
+var V0_7_RESPONE_HEADER_LENGTH = 6;
 
 /*
    0                   1                   2                   3
@@ -76,6 +77,10 @@ Response.prototype.toBytes = function(){
                .UInt16BE(this.error)
                .string(this.body)
                .make();
+};
+
+Response.getHeaderLength = function() {
+  return V0_7_RESPONE_HEADER_LENGTH;
 };
 
 module.exports = Response;

@@ -11,6 +11,7 @@ var Response = require('./Response');
 
 var Consumer = function(options){
   this.MAX_MESSAGE_SIZE = 1024 * 1024; // 1 megabyte
+  this.MESSAGE_HEADER_LENGTH = Message.getHeaderLength();
   this.DEFAULT_POLLING_INTERVAL = 2; // 2 seconds
   this.MAX_OFFSETS = 1;
   this.LATEST_OFFSET = -1;
@@ -116,7 +117,7 @@ Consumer.prototype.handleFetchData = function(cb){
   var messages = response.messages;
   var messageLength = 0;
   for (var i = 0; i < messages.length; i++) {
-    messageLength += messages[i].payload.length+10;
+    messageLength += messages[i].payload.length + this.MESSAGE_HEADER_LENGTH;
   }
   this.incrementOffset(messageLength);
   this._unsetRequestMode();

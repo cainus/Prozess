@@ -3,6 +3,8 @@ var BufferMaker = require('buffermaker');
 var Message = require('./Message');
 var Response = require('./Response');
 var _ = require('underscore');
+var RESPONSE_HEADER_LENGTH = Response.getHeaderLength(),
+ MESSAGE_HEADER_LENGTH = Message.getHeaderLength();
 
 /*  HEADER
 
@@ -48,7 +50,7 @@ var FetchResponse = function(error, messages){
   this.messages = messages;  // an array of message objects
   this.length = 2;
   _.each(this.messages, function(msg){
-    that.length = msg.payload.length+10;
+    that.length = msg.payload.length + MESSAGE_HEADER_LENGTH;
   });
   this.bytesLengthVal = null;
 };
@@ -84,7 +86,7 @@ FetchResponse.fromBytes = function(bytes){
   } else {
     messages = parseMessages(response.body);
   }
-  this.bytesLengthVal = response.body.length+6;
+  this.bytesLengthVal = response.body.length + RESPONSE_HEADER_LENGTH;
 
   return new FetchResponse(response.error, messages);
 };
@@ -97,7 +99,7 @@ var parseMessages = function(body){
   while(body.length > 0){
     try {
       var message = Message.fromBytes(body);
-      body = body.slice(message.payload.length+10);
+      body = body.slice(message.payload.length + MESSAGE_HEADER_LENGTH);
       messages.push(message);
     } catch(ex){
       break;

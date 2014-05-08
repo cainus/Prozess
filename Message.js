@@ -6,7 +6,6 @@ var _ = require('underscore');
 var BASIC_MESSAGE_HEADER_SIZE = 5;
 var MESSAGE_SIZE_BYTE_LENGTH = 4;
 var V0_7_MESSAGE_HEADER_SIZE = 10;
-var V0_6_MESSAGE_HEADER_SIZE = 9;
 var COMPRESSION_DEFAULT = 0;
 var assert = require('assert');
 
@@ -162,6 +161,10 @@ Message.fromBytes = function(buf){
   }
 
   return new Message(payload, checksum, magic, compression);
+};
+
+Message.getHeaderLength = function() {
+  return V0_7_MESSAGE_HEADER_SIZE;
 };
 
 module.exports = Message;

@@ -179,7 +179,7 @@ You must also supply a `Callback` to handle any asynchronous
   <tr>
     <td>Kafka 0.7.0 Release</td><td>Supported</td>
   <tr>
-    <td>kafka-0.6</td><td>Consumer-only support.</td>
+    <td>kafka-0.6</td><td>Not Supported</td>
   <tr>
     <td>kafka-0.05</td><td>Not Supported</td>
 </table>
