@@ -49,7 +49,7 @@ Producer.prototype.send = function(messages, options, cb) {
     options = {};
   }
   if (!cb || (typeof cb != 'function')){
-    throw "A callback with an error parameter must be supplied";
+    throw new Error("A callback with an error parameter must be supplied");
   }
   options.partition = options.partition || this.partition;
   options.topic = options.topic || this.topic;
