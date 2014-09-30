@@ -76,9 +76,15 @@ Consumer.prototype.connect = function(cb){
     }
     that.responseBuffers.push(data);
     that.responseBuffersLength += data.length;
-    if (!that.responseLength) that.responseLength = data.readUInt32BE(0);
-    if (that.responseBuffersLength >= that.responseLength) {
-        that.responseBuffer = Buffer.concat(that.responseBuffers);
+    if (that.responseBuffersLength > 4) {
+      var tmpBuffer = null;
+      if (!that.responseLength) {
+        tmpBuffer = Buffer.concat(that.responseBuffers)
+        that.responseLength = tmpBuffer.readUInt32BE(0) + 4; // the encoded length does not include the 4 byte encoded length
+      }
+
+      if (that.responseBuffersLength >= that.responseLength) {
+        that.responseBuffer = !!tmpBuffer ? tmpBuffer: Buffer.concat(that.responseBuffers);
         that.responseBuffers = [];
         that.responseLength = 0;
         that.responseBuffersLength = 0;
@@ -92,6 +98,7 @@ Consumer.prototype.connect = function(cb){
           default:
             throw "Got a response when no response was expected!";
         }
+      }
     }
   });
 };
