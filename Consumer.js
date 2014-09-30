@@ -80,7 +80,7 @@ Consumer.prototype.connect = function(cb){
       var tmpBuffer = null;
       if (!that.responseLength) {
         tmpBuffer = Buffer.concat(that.responseBuffers)
-        that.responseLength = tmpBuffer.readUInt32BE(0);
+        that.responseLength = tmpBuffer.readUInt32BE(0) + 4; // the encoded length does not include the 4 byte encoded length
       }
 
       if (that.responseBuffersLength >= that.responseLength) {
