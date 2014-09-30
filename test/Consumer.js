@@ -394,6 +394,77 @@ describe("Consumer", function(){
          });
        });
       });
+    it("should consume when packets are fragmented", function (done) {
+      this.server = net.createServer(function (listener) {
+        var requestBuffer = new Buffer([]);
+
+        listener.on('data', function (data) {
+          requestBuffer = Buffer.concat([requestBuffer, data]);
+          data = requestBuffer;
+          // check if it's a full request:
+
+          var unpacked = binary(requestBuffer)
+            .word32bu("length")
+            .word16bu("type")
+            .vars;
+
+          var totalExpectedLength = unpacked.length + 4;  // 4 bytes for the length field
+          if (data.length >= totalExpectedLength) {
+            requestBuffer = requestBuffer.slice(totalExpectedLength);
+
+            switch (unpacked.type) {
+              case 4 :  // OFFSETS
+                // fake offsets response!
+                var offsetsResponse = new OffsetsResponse(0, [54, 23]);
+                listener.write(offsetsResponse.toBytes());
+                break;
+
+
+              case 1:  // MESSAGES
+                // fake messages response!
+
+                var fetchResponse = new FetchResponse(0, [new Message("ale"), new Message("foobar")]);
+                var respBuf = fetchResponse.toBytes();
+                var packet1 = new Buffer(3);
+                var packet2 = new Buffer(respBuf.length - 6);
+                var packet3 = new Buffer(3);
+                respBuf.copy(packet1, 0, 0, 3);
+                respBuf.copy(packet2, 0, 3, respBuf.length - 3);
+                respBuf.copy(packet3, 0, respBuf.length - 3, respBuf.length);
+
+
+                listener.write(packet1);
+                setTimeout(function () {
+                  listener.write(packet2);
+                  setTimeout(function () {
+                    listener.write(packet3);
+                  }, 50);
+                }, 50);
+
+
+                break;
+              default :
+                throw "unknown request type: " + unpacked.type;
+            }
+          }
+        });
+
+      });
+
+      var consumer = new Consumer({topic: "test"});
+      this.server.listen(9092, function () {
+        consumer.connect(function (err) {
+          consumer.consume(function (err, messages) {
+            should.not.exist(err);
+            messages.length.should.equal(2);
+            messages[0].payload.toString().should.equal("ale");
+            messages[1].payload.toString().should.equal("foobar");
+            (consumer.offset.eq(83)).should.equal(true);
+            done();
+          });
+        });
+      });
+    });
   });
 });
 
