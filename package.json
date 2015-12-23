@@ -55,6 +55,6 @@
     "node": ">=0.8.0"
   },
   "author": "Gregg Caines",
-  "license": "BSD",
+  "license": "MIT",
   "homepage": "https://github.com/cainus/Prozess"
 }
