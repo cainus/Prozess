@@ -1,3 +1,4 @@
+var util = require('util');
 var should = require('should');
 var net = require('net');
 var bignum = require('bignum');
@@ -160,7 +161,7 @@ describe("Consumer", function(){
           setTimeout(function() { connectionListener(); }, 10);
           return socket;
         });
-        var consumer = new Consumer({topic: "test", port : -1, offset : 1});
+        var consumer = new Consumer({topic: "test", port : 1, offset : 1});
         consumer._setRequestMode("fetch");
         consumer.onFetch(function(err) {
           should.exist(err, 'we should emit an error for oversized messages');
@@ -173,16 +174,17 @@ describe("Consumer", function(){
           done();
         });
         consumer.connect(function(err) {
-          should.not.exist(err, 'should not throw an error here');
+          should.not.exist(err, 'should not throw an error here: ' + util.inspect(err));
         });
       });
     });
+
     describe("invalid port", function(){
-      it("calls back with a socket error", function(done){
+      it("calls back with an error", function(done){
 
         var consumer = new Consumer({topic: "test", port : -1});
         consumer.connect(function(err){
-          err.code.should.equal('ECONNREFUSED');
+          err.message.should.match(/port/i);
           done();
         });
 
@@ -287,7 +289,7 @@ describe("Consumer", function(){
         var emptyBuffer = new Buffer([]);
         consumer.responseBuffer.should.eql(emptyBuffer);
         should.not.exist(consumer.requestMode);
-        consumer.offset.eq(bignum(12 + 
+        consumer.offset.eq(bignum(12 +
                                   messages[0].toBytes().length +
                                   messages[1].toBytes().length )).should.equal(true);
         done();

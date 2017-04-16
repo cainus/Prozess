@@ -47,6 +47,9 @@ Consumer.prototype._unsetRequestMode = function(){
 
 Consumer.prototype.connect = function(cb){
   var that = this;
+  if (this.port <= 0 || this.port >= 65536) {
+    return cb(new Error('Port should be > 0 and < 65536'));
+  }
   this.socket = net.createConnection({port : this.port, host : this.host}, function(){
     cb();
   });
@@ -153,7 +156,7 @@ Consumer.prototype.handleOffsetsData = function(cb){
   return cb(null, offsets);
 };
 
-Consumer.prototype.sendConsumeRequest = function(cb){  
+Consumer.prototype.sendConsumeRequest = function(cb){
   if (this.offset === null || this.offset === undefined || !this.offset.eq) {
     return cb("offset was " + this.offset);
   }
@@ -205,7 +208,7 @@ Consumer.prototype.getOffsets = function(cb){
   var that = this;
   var request = new OffsetsRequest(this.topic, this.partition, -1, this.MAX_OFFSETS);
   this.socket.write(request.toBytes());
- 
+
 };
 
 Consumer.prototype.getLatestOffset = function(cb){
