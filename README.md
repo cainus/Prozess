@@ -10,7 +10,7 @@ Prozess is a Kafka library for node.js
 
 There are two low-level clients: The Producer and the Consumer:
 
-##Producer example:
+## Producer example:
 
 ```javascript
 var Producer = require('Prozess').Producer;
@@ -38,7 +38,7 @@ setInterval(function(){
 }, 1000);
 ```
 
-##Consumer example:
+## Consumer example:
 
 ```javascript
 var Consumer = require('Prozess').Consumer;
@@ -75,7 +75,7 @@ var options = {
 };
 ```
 
-##Documentation
+## Documentation
 
 ### `var producer = new Producer(options)`
 
@@ -156,17 +156,17 @@ You can pass `.send()` an optional options argument to
 You must also supply a `Callback` to handle any asynchronous
   errors.
 
-##Installation:
+## Installation:
 
      npm install prozess
 
-##Checkout the code and run the tests:
+## Checkout the code and run the tests:
 
      $ git clone https://github.com/cainus/Prozess.git
      $ cd Prozess ; make test-cov && open coverage.html
 
 
-##Kafka Compatability matrix:
+## Kafka Compatability matrix:
 
 <table>
   <tr>
